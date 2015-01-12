@@ -1,0 +1,7 @@
+*.o
+*.metadata
+*.S
+*.ld
+*.elf
+*.cproject
+*.project
