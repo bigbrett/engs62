@@ -5,9 +5,8 @@ syntax on
 set autoindent
 set backspace=indent,eol
 set showmode		" Always display mode
-"set scrolloff=4		" Start scrolling x lines from bottom
+set scrolloff=2		" Start scrolling x lines from bottom
 set number 		" enable line numbers
-set ch=2		" set command line 2 lines high
 set showmatch 		" enable matching parenthesis 
 set wildmenu		" enable enhanced command line completion
 set incsearch		" enable incremental seach
@@ -19,9 +18,7 @@ set smartcase 		" searchin is case INSENSITIVE for ALL LOWERCASE, otherwise is c
 "set backupdir=~/.vim_backup " backup directory
 
 "size of a hard tabstop
-set tabstop=4
-"always uses spaces instead of tab characters
-"set expandtab
+" set tabstop=4
 " size of an indent
 set shiftwidth=2
 
