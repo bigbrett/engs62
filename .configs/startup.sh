@@ -31,3 +31,5 @@ if test -f "/home/armdev/workspace/.configs/.vimrc"; then {
 }; else
 	echo "ERROR... Could not locate ~/workspace/.configs/.vimrc"
 fi	
+echo
+echo "Dev environment restored....happy hacking!!"
