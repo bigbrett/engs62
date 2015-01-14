@@ -35,13 +35,6 @@ echo; echo "Setting up Solarized Color Scheme...."; echo; echo
 bash ~/workspace/.configs/gnome-terminal-colors-solarized/install.sh
 eval `dircolors ~/workspace/.configs/dircolors-solarized/dircolors.256dark` 
 
-if test -f "~/.vim/colors/solarized.vim"; then {
-	echo "colors updated"
-}; else {
-  mkdir ~/.vim/colors
-  mv ~/workspace/.configs/vim-colors-solarized/colors/solarized.vim ~/.vim/colors/
-}; 
-fi
-
+test -f /home/armdev/.vim/colors/solarized.vim && echo "colors configured" || (mkdir ~/.vim/colors; cp ~/workspace/.configs/vim-colors-solarized/colors/solarized.vim ~/.vim/colors/)
 
 echo; echo "Dev environment restored....happy hacking!!"
