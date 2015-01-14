@@ -33,7 +33,10 @@ fi
 # setup solarized
 sudo apt-get install dconf
 echo; echo "Setting up Solarized Color Scheme...."; echo; echo
-dircolors ~/workspace/.configs/dircolors-solarized/dircolors.256dark
+eval `dircolors ~/workspace/.configs/dircolors-solarized/dircolors.256dark`
+mkdir ~/.dir_colors
+cp ~/workspace.configs/dircolors-solarized/dircolors.256dark ~/.dir_colors/
+echo 'eval `dircolors ~/workspace/.configs/dircolors-solarized/dircolors.256dark`' >> ~/.bashrc
 bash ~/workspace/.configs/gnome-terminal-colors-solarized/install.sh
 
 test -f /home/armdev/.vim/colors/solarized.vim && echo "colors configured" || (mkdir ~/.vim; mkdir ~/.vim/colors; cp ~/workspace/.configs/vim-colors-solarized/colors/solarized.vim ~/.vim/colors/)
