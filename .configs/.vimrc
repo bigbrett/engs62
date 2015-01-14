@@ -1,7 +1,11 @@
 set nocompatible   " be iMproved
 filetype off       " required!
 
-syntax on
+" Solarized Color Scheme
+syntax enable
+set background=dark
+colorscheme solarized 
+
 set autoindent
 set backspace=indent,eol
 set showmode		" Always display mode
@@ -14,11 +18,9 @@ set ignorecase		" see next: use in conjunction with smartcase
 set smartcase 		" searchin is case INSENSITIVE for ALL LOWERCASE, otherwise is case sensitive
 "set nowrap		" disable text wrapping
 "set cul			" Highlight current line
-"set backup		" enable backups
-"set backupdir=~/.vim_backup " backup directory
 
 "size of a hard tabstop
-" set tabstop=4
+set tabstop=4
 " size of an indent
 set shiftwidth=2
 

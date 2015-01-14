@@ -25,4 +25,12 @@ if test -f "/home/armdev/workspace/.configs/.vimrc"; then {
 }; else
   echo "ERROR... Could not locate ~/workspace/.configs/.vimrc"
 fi	
+
+# setup solarized
+echo; echo "Setting up Solarized Color Scheme...."; echo; echo
+source ~/workspace/.configs/gnome-terminal-colors-solarized/install.sh
+eval `dircolors ~/workspace/.configs/dircolors-solarized/dircolors.256dark` 
+mv ~/workspace/.configs/vim-colors-solarized/colors/solarized.vim ~/.vim/colors/
+
+
 echo; echo "Dev environment restored....happy hacking!!"
