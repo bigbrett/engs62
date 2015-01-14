@@ -28,8 +28,9 @@ fi
 
 # setup solarized
 echo; echo "Setting up Solarized Color Scheme...."; echo; echo
-source ~/workspace/.configs/gnome-terminal-colors-solarized/install.sh
+bash ~/workspace/.configs/gnome-terminal-colors-solarized/install.sh
 eval `dircolors ~/workspace/.configs/dircolors-solarized/dircolors.256dark` 
+mkdir ~/.vim/colors
 mv ~/workspace/.configs/vim-colors-solarized/colors/solarized.vim ~/.vim/colors/
 
 

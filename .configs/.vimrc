@@ -1,7 +1,7 @@
 set nocompatible   " be iMproved
 filetype off       " required!
 
-" Solarized Color Scheme
+"Solarized Color Scheme
 syntax enable
 set background=dark
 colorscheme solarized 
