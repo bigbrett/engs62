@@ -12,24 +12,17 @@ git status
 read -p "Would you like to pull from remote git repository? (y/n) > " -n 1 
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then 
-	git pull origin master 
+  git pull origin master 
 fi 
 
 # Install Vim because Vi sucks
-echo
-echo "Checking for Vim"
-echo
+echo; echo; echo "Checking for Vim...(sudo password: armdev"; echo; echo
 sudo apt-get install vim 
-echo
-echo "Checking for .vimrc file..."
-echo
+echo; echo; echo "Checking for .vimrc file..."; echo
 if test -f "/home/armdev/workspace/.configs/.vimrc"; then {
-	echo
-	echo "updating .vimrc file..."
-	echo
-	cat ~/workspace/.configs/.vimrc > ~/.vimrc
+  echo; echo "updating .vimrc file..."; echo
+  cat ~/workspace/.configs/.vimrc > ~/.vimrc
 }; else
-	echo "ERROR... Could not locate ~/workspace/.configs/.vimrc"
+  echo "ERROR... Could not locate ~/workspace/.configs/.vimrc"
 fi	
-echo
-echo "Dev environment restored....happy hacking!!"
+echo; echo "Dev environment restored....happy hacking!!"
