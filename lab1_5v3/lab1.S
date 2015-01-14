@@ -56,59 +56,69 @@ NMI_handler:
 
 	/* In the event of a fault, loop here forever */
 fault_handler:
-	ldr r1, =GPIO_BSRR_SET_12_RED
-	bl led_SR
+	ldr r1, =GPIOD_BSRR_SET_12_RED // set leds to red
+	mov r2, #1 // set duration to 1 second
+	bl led_SR // turn on leds
+	bl waitn // wait duration (r2)
+	ldr r1, =GPIOD_BSRR_RESET_12 // set leds to off
+	bl led_SR // turn off leds
 	bl waitn
-	ldr r1, =GPIO_BSRR_RESET_12
-	bl led_SR
 	b fault_handler
 
 
-/* r2 must equal clk_period=320000 for 1 second loop */
+	/* r3 must equal clk_period=320000 and r2=duration (s) */
 waitn:
-	push {r0,lr}
-	mov r0, r2
-	mul r0, =BUSYWAIT_1_SECOND
+	push {r3,lr}
+	mul r3, r2 /* 3200000 cycles/second * x seconds */
 	b waitloop
 
 waitloop:
-	cmp r0, #0
+	cmp r3, #0
 	beq waitend
-	sub r0, #1
+	sub r3, #1
 	b waitloop
 
 waitend:
-	pop {r0,pc}
+	pop {r3,pc}
 
-/* blink routine lab 1 */
+	/* blink routine lab 1 */
 blink:
 	push {r1,lr}
-	ldr r2, #3 // set wait duration
+	mov r2, #1 // set wait duration
 
-	ldr r1, =GPIO_BSRR_SET_12_GRN // set leds to green
+	ldr r1, =GPIOD_BSRR_SET_12_GRN // set leds to green
 	bl led_SR // turn on leds
 	bl waitn // wait duration (r2)
+	ldr r1, =GPIOD_BSRR_RESET_12 // set leds to off
+	bl led_SR // turn off leds
+	bl waitn
 
-	ldr r1, =GPIO_BSRR_SET_12_ORG // set leds to orange
+	ldr r1, =GPIOD_BSRR_SET_12_ORG // set leds to orange
 	bl led_SR // turn on leds
 	bl waitn // wait duration (r2)
+	ldr r1, =GPIOD_BSRR_RESET_12 // set leds to off
+	bl led_SR // turn off leds
+	bl waitn
 
-	ldr r1, =GPIO_BSRR_SET_12_BLU // set leds to blue
+	ldr r1, =GPIOD_BSRR_SET_12_BLU // set leds to blue
 	bl led_SR // turn on leds
 	bl waitn // wait duration (r2)
+	ldr r1, =GPIOD_BSRR_RESET_12 // set leds to off
+	bl led_SR // turn off leds
+	bl waitn
 
-	ldr r1, =GPIO_BSRR_SET_12_ALL // set leds to all
+	ldr r1, =GPIOD_BSRR_SET_12 // set leds to all
+	mov r2, #3
 	bl led_SR // turn on leds
-	bl waitn // wait duration (r2)
+	bl waitn
 	pop {r1,pc}
 
 
-/* light selection passed in r1, duration (sec) passed in r2 */
+	/* light selection passed in r1, duration (sec) passed in r2 */
 led_SR:
-	push{lr}
+	push {lr}
 	str r1, [r0] // turn leds on
-	pop{pc}
-
+	pop {pc}
 
 	/* This is the code we want to run out of reset/on start-up */
 reset_handler:
@@ -129,39 +139,34 @@ reset_handler:
   	ldr r1, =GPIOD_MODER_GP
   	str r1, [r0]
 
- 	/* Constants for LED on for 1 second, then off */
+ 	/* Bit pattern for LED colors */
 	.equ GPIOD_BSRR,          0x40020C18  /* ([1]-2.3, [1]-7.4.7) */
 	.equ GPIOD_BSRR_SET_12,   0x0000F000
 	.equ GPIOD_BSRR_SET_12_GRN,   0x00001000  /* ([1]-7.4.7 */
 	.equ GPIOD_BSRR_SET_12_ORG,   0x00002000
 	.equ GPIOD_BSRR_SET_12_BLU,   0x00008000
 	.equ GPIOD_BSRR_SET_12_RED,   0x00004000
-
 	.equ GPIOD_BSRR_RESET_12, 0xF0000000
-	.equ BUSYWAIT_1_SECOND, 3200000 /* one second constant */
 
-	/* load 1 second delay constant */
-	ldr r2, =BUSYWAIT_1_SECOND
+	/* duration constant */
+	.equ BUSYWAIT_1_SECOND, 3200000 /* one second constant */
 
 	/* r0 points to LED port */
 	ldr r0, =GPIOD_BSRR
+
+	/* r3 holds duration constant */
+	ldr r3, =BUSYWAIT_1_SECOND
 
 	/* lights off */
 	ldr r1, =GPIOD_BSRR_RESET_12
 	str r1, [r0]
 
-	/* Blink routines */
-	mov r3, #3
-thrice:
-	cmp r3, #0
-	beq endloop
-
-	sub r3, #1
+	/* Blink routine */
 	bl blink
-	b thrice
 
 endloop:
-	blx r3
+	blx r3 // send to fault
+
 	.end
 
 
