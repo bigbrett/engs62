@@ -163,9 +163,22 @@ USART2_send:
  * Polling receive - wait for a character to arrive from the USART,
  * then return received byte to caller in r0
  */
+  	.equ USART2_SR_RXNE_MASK, 0x00000060 // complement of SR
+
+
 USART2_recv:
 	push {lr}
-	/* Insert your code here */
+check_RXNE:
+	ldr r1, =USART2_SR // address of SR
+ 	ldr r2, [r1] // r2=data in SR
+ 	ldr r3, =USART2_SR_RXNE_MASK // complement
+ 	and r2,r2,r3 // check value of RXNE
+	cmp r2, #0	// r2>0 if RXNE=1
+	beq check_RXNE // if not equal, keep checking
+
+	// continue here
+
+
 	pop {pc}
 
 	.end

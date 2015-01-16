@@ -50,15 +50,11 @@
 	/* Generic code section */
 	.text
 
-Hellostring:
-	.ascii "hello!\n\0"
-	.align 2
-
-	/* In the event of a non-maskable interrupt, loop here forever */
+/* In the event of a non-maskable interrupt, loop here forever */
 NMI_handler:
 	b NMI_handler
 
-	/* In the event of a fault, loop here forever */
+/* In the event of a fault, loop here forever */
 fault_handler:
 	ldr r1, =GPIOD_BSRR_SET_12_RED // set leds to red
 	mov r2, #1 // set duration to 1 second
@@ -70,7 +66,8 @@ fault_handler:
 	b fault_handler
 
 
-	/* r3 must equal clk_period=320000 and r2=duration (s) */
+/* wait routine
+* r3 must equal clk_period=320000 and r2=duration (s) */
 waitn:
 	push {r3,lr}
 	mul r3, r2 /* 3200000 cycles/second * x seconds */
@@ -82,9 +79,10 @@ waitloop:
 	b waitloop
 waitend:
 	pop {r3,pc}
+/* end waitn */
 
 
-	/* blink routine lab 1 */
+/* blink routine lab 1 */
 blink:
 	push {r1,lr}
 	mov r2, #1 // set wait duration
@@ -115,21 +113,24 @@ blink:
 	bl led_SR // turn on leds
 	bl waitn
 	pop {r1,pc}
-
-
 	/* light selection passed in r1, duration (sec) passed in r2 */
 led_SR:
 	push {lr}
 	str r1, [r0] // turn leds on
 	pop {pc}
+/* end blink*/
 
 
+/* declare word to send */
+Hellostring:
+	.ascii "hello!\n\0"
+	.align 2
 	/* loop to send bits via USART2 */
-sendword:
+TXword:
 	push {r0,r1,r2,lr}
 	ldr r0, =Hellostring // point to start of word
 	bl USART2_init // initialize USART
-sendloop:
+TXloop:
 	ldrb r1,[r0] // load target bit into r1
 	cmp r1,#0 // check if end of string
 	beq return // if end of string, return to handler
@@ -139,11 +140,20 @@ sendloop:
 	bl USART2_send // send bit
 	mov r0,r2 // restore address in r0
 	add r0,1 // increment pointer towards next bit
-	b sendloop
+	b TXloop
 return:
 	mov r0,#'\r'
 	bl USART2_send
 	pop {r0,r1,r2,pc} // else return to handler
+
+
+/* serial RX routine: RXD returned in r0 */
+RXword:
+	push {r0,lr}
+	bl USART2_init // initialize USART
+serialRXloop:
+
+	bl USART2_recv // tell USART to begin transmission
 
 
 	/* This is the code we want to run out of reset/on start-up */
@@ -192,8 +202,8 @@ reset_handler:
 
 	/* Blink routine */
 	//bl blink
-	bl sendword
-
+	//bl TXword
+	bl RXword
 endloop:
 	b endloop
 
