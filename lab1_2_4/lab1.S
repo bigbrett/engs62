@@ -324,8 +324,6 @@ reset_handler:
 	/* GPIO port D Input Data Register -- status of pins */
 	.equ GPIOD_IDR,			 0x40020C10
 
-
-
  	/* Bit pattern for LED colors */
 	.equ GPIOD_BSRR,          0x40020C18  /* ([1]-2.3, [1]-7.4.7) */
 	.equ GPIOD_BSRR_SET_12,   0x0000F000
@@ -338,8 +336,6 @@ reset_handler:
 	.equ GPIOD_BSRR_RESET_12_ORG,	0x20000000
 	.equ GPIOD_BSRR_RESET_12_BLU,	0x80000000
 	.equ GPIOD_BSRR_RESET_12_RED,	0x40000000
-
-
 
 	/* duration constant */
 	.equ BUSYWAIT_1_SECOND, 3200000 /* one second constant */
