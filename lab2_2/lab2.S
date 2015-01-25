@@ -19,6 +19,8 @@
 
 	.equ STACK_TOP, 0x20000100     /* 256 bytes of stack in RAM region */
 	.equ BAD_ADDR, 0xFFFFFFFF  	   /* Dummy Fault */
+ 	.equ USART2_DR, 0x40004404
+
 	/*
 	 * VECTOR TABLE
 	 */
@@ -40,6 +42,7 @@
 	.word default_handler  /* Reserved */
 	.word default_handler  /* Pendable service call */
 	.word systick_handler  /* Systick */
+
 	/* Peripheral Handlers */
 	.rept 38  /* Repeat this block 38 times */
 	.word default_handler  /* ISRs 0-37 */
@@ -70,7 +73,11 @@ systick_handler:
 
 	/* Address USART2 interrupts */
 USART2_handler:
-	b USART2_handler
+	push {r1,r2,lr}
+	bl RX_LED // LED control
+	ldr r1, =USART2_DR
+	ldr r2, [r1] // clear interrupt flag by reading USART2_DR
+	pop {r1,r2,pc}
 
 	/* Default handler for un-handled exceptions/interrupts */
 default_handler:
@@ -105,8 +112,6 @@ reset_handler:
 
 	/* Enable LEDs and turn them all on */
   	bl LED_init
-  	ldr r0, =LED_all
-  	bl LED_on
 
   	/* Initialize USART2 9600 baud, 8 data, no parity, 1 stop */
   	bl USART2_init
@@ -114,12 +119,11 @@ reset_handler:
   	/* Enable peripheral interrupts, see routine above */
   	bl NVIC_init
 
+	/* Enable Systick blink */
+	bl systick_init
+
   	/* Turn all LEDs off */
   	bl LED_off
-
-  	/* Just toggle green LED on */
-  	bl LED_toggle_grn
-  	bl LED_toggle_grn
 
 	/* Global interrupt enable */
   	cpsie i
@@ -128,7 +132,8 @@ reset_handler:
   	mov r0, #'!'
   	bl USART2_send
 
-	bl systick_init
+
+
 endloop:
 	b endloop  /* spin here forever in a tight loop */
 

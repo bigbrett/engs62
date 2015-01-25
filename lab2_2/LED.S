@@ -22,8 +22,9 @@
     .global LED_on
     .global LED_off
     .global LED_toggle_grn
+    .global LED_toggle
     .global LED_blink
-
+	.global LED_status
     /* Constants visible to the world ( due to ".global" below ) */
     .equ LED_grn, 0x1
     .equ LED_org, 0x2
@@ -122,6 +123,26 @@ toggle_on: // turn on LED
 	bl LED_on
 toggle_grn_END:
 	pop {r0,pc}
+
+
+/* Toggle state of LED passed in r0 */
+LED_toggle:
+	push {r0,r1,lr}
+	mov r1,r0 // copy r0 into r1
+	bl LED_status // check status of LED in r0 (overwrites r0)
+	cmp r0,#0 // if r0=0 LED is off
+	it eq
+	beq LED_toggle_on
+LED_toggle_off: // turn off LED
+	mov r0,r1 // restore LED value in r0
+	bl LED_off
+	b LED_toggle_END
+LED_toggle_on: // turn on LED
+	mov r0,r1 // restore LED value in r0
+	bl LED_on
+LED_toggle_END:
+	pop {r0,r1,pc}
+
 
 /* Infinite LED blink loop
  * LED passed in r0 */

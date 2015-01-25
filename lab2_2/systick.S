@@ -25,7 +25,7 @@
 	.equ SYSTICK_CVR, 0xE000E018 // SYSTICK Current Value Register
 	.equ SYSTICK_ENABLE_MASK, 0x00000007 // orring sets enable to 1
 
-	.equ ONE_SECOND, 3200000 // one second in clock cycles
+	.equ ONE_SECOND, 3600000000 // one second in clock cycles
     .text
 
 /*
