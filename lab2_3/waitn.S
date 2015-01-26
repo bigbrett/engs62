@@ -19,8 +19,10 @@
 
     /* Make these routines visible to other modules */
     .global waitn
+    .global waitctr
 
-	.equ BUSYWAIT_1_SECOND,		3200000
+	.equ BUSYWAIT_1_SECOND,	32000000
+	.equ BUSYWAIT_CTR, 		16000000
 
     .text
 
@@ -41,3 +43,27 @@ waitend:
 /* end waitn */
 
 
+
+/* increments r0 every second */
+waitctr:
+	push {r0-r3,lr}
+	mov r0, #5 // initialize outside loop
+countloop:
+	cmp r0, #0
+	beq countend
+	ldr r3, =BUSYWAIT_CTR // initialize inside loop
+waitctrloop:
+    cmp r3, #0
+    beq waitctrend
+    sub r3, #1
+    b waitctrloop
+waitctrend:
+	bl USART2_send // echo count in r0
+	sub r0, #1
+	b countloop
+countend:
+	pop {r0-r3,pc}
+
+
+
+.end

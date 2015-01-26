@@ -67,9 +67,14 @@ fault_handler:
 
 	/* Address system tick event */
 systick_handler:
-	push {lr}
-	bl LED_toggle_grn // toggle green LED
-	pop {pc}
+	push {r0,lr}
+
+	cmp r0, #'5'
+	ite ne
+	addne r0, #1 // if not equal, increment ctr, else reset
+	moveq r0, #'1'
+	bl USART2_send // echo count
+	pop {r0,pc}
 
 	/* Address USART2 interrupts */
 USART2_handler:
@@ -121,6 +126,8 @@ reset_handler:
 	/* Enable Systick blink */
 	//bl systick_init
 
+	bl button_init
+
   	/* Turn all LEDs off */
   	bl LED_off
 
@@ -128,8 +135,11 @@ reset_handler:
   	cpsie i
 
 	/* Show the USART2 peripheral is configured and connected */
-  	mov r0, #'!'
-  	bl USART2_send
+	//bl systick_init
+	//mov r0, #'2'
+
+
+	b button_scan
 
 
 
