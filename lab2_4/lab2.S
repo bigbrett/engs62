@@ -132,6 +132,7 @@ reset_handler:
 
 	/* Show the USART2 peripheral is configured and connected */
 	.lcomm CTR_ADDR 4
+	bl unlock_mutex
 	b button_scan
 
 

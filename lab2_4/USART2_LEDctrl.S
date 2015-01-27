@@ -41,7 +41,7 @@
 	.text
 
 	.global RX_LED // USART LED Control w/ echo
-
+	.global TXnewline
 
 
 	/* GPIO port D Input Data Register -- status of pins */
@@ -133,11 +133,18 @@ TXnewline:
 
 /* receives serial messages to control LEDs */
 RX_LED:
-	push {r0,r2,lr}
+	push {r0,r1, r2,lr}
 /* Scans for user serial input */
 RX_LED_scan:
-	bl TXnewline
+	//bl TXnewline
 	bl USART2_recv // r0<=RX_data
+	// CHECK MUTEX BEFORE TRANSMIT
+	mov r1, r0 // save USART2_recv data
+	bl lock_mutex // attempt to lock mutex
+	cmp r0, #0
+	bne end_RX_LED // mutex lock failed, do not transmit
+
+	mov r0, r1 // restore USART2_recv data and continue
 	bl USART2_send // echo output
 
 	push {r0}
@@ -165,8 +172,10 @@ RX_LED_scan:
 	it eq
 	bleq toggle_red // all LEDs
 
-	//b RX_LED_scan
-	pop {r0,r2,pc}
+	bl TXnewline
+	bl unlock_mutex
+end_RX_LED:
+	pop {r0,r1,r2,pc}
 /* END RX_LED */
 
 

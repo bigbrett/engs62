@@ -91,18 +91,27 @@ valid: // r0 holds actual value
 	b scanloop // Scan again
 	pop {r0-r5,pc}
 
+
 /* Kicks off systick up counter on button press */
 button_ctr:
 	push {r0,r1,r2,lr}
+	bl lock_mutex // attempt to lock mutex
+	cmp r0, #0
+	bne button_ctr_loopend // attempt failed, EXIT
+
 	ldr r1, =CTR_ADDR // address of CTR
 	mov r0, #'1'
 	str r0, [r1] // initialize CTR<=1
 	bl systick_init // enable systick interrupts to start
+
 button_ctr_loop:
 	ldr r0, [r1] // r0<=CTR
 	cmp r0, #'6'
 	blt button_ctr_loop // if CTR<6 keep counting
 	bl systick_kill // else disable systick
+	bl unlock_mutex // else unlock mutex
+	bl TXnewline
+button_ctr_loopend:
 	pop {r0,r1,r2,pc}
 
 
