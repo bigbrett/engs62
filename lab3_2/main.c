@@ -50,6 +50,15 @@ void systick_kill(void)
 }
 
 
+/* Interrupt handler for USART2 */
+void __attribute__ ((interrupt)) USART2_handler(void)
+{
+	uint8_t word = USART2_recv();
+	USART2_send(word);
+	USART2_clr();
+}
+
+
 int main()
 {
 	/*
@@ -71,7 +80,6 @@ int main()
 	USART2_init();
 	USART2_send('!');
 
-	systick_init();
 
 
 	/* Wait here forever */

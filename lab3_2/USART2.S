@@ -21,6 +21,7 @@
     .global USART2_init
     .global USART2_send
     .global USART2_recv
+    .global USART2_clr
 
     .text
 
@@ -121,18 +122,21 @@ USART2_init:
 	ldr r1, =USART2_BRR_9600
 	str r1, [r0]
 
-	/*
-	 * Configure the NVIC to enable interrupts from the USART2 peripheral
-	 * NOTE: interrupts must be configured in the USART2 config registers
-	 *       and must be enabled in the processor with "cpsie i"
-	 */
-	.equ NVIC_ISER1, 0xE000E104      /* Interrupt Set Enable Register 1 */
-	.equ NVIC_ISER1_USART2_EN, 0x40  /* Enable USART2 Global Interrupts */
-	ldr r0, =NVIC_ISER1
-	ldr r1, =NVIC_ISER1_USART2_EN
-	str r1, [r0]
+    /*
+     * Configure the NVIC to enable interrupts from the USART2 peripheral
+     * NOTE: interrupts must be configured in the USART2 config registers
+     *       and must be enabled in the processor with "cpsie i"
+     */
+    .equ NVIC_ISER1, 0xE000E104      /* Interrupt Set Enable Register 1 */
+    .equ NVIC_ISER1_USART2_EN, 0x40  /* Enable USART2 Global Interrupts */
+    ldr r0, =NVIC_ISER1
+    ldr r1, =NVIC_ISER1_USART2_EN
+    str r1, [r0]
 
-	/* Enable transmitter and receiver and RXNE interrupt */
+
+
+
+	/* Enable transmit, receive, and interrupts */
 	.equ USART2_CR1_TXRX_EN, 0x0000002C
 	ldr r0, =USART2_CR1
 	ldr r1, =USART2_CR1_TXRX_EN
@@ -141,6 +145,16 @@ USART2_init:
 	str r2, [r0]
 
 	pop {r0-r3,pc}
+/* END USART2_init */
+
+
+/* Clears interrupt */
+USART2_clr:
+	push {r1,r2,lr}
+	ldr r1, =USART2_DR
+	ldr r2, [r1] // clear interrupt flag by reading USART2_DR
+	pop {r1,r2,pc}
+/* END USART2_clr */
 
 
 /*
@@ -174,9 +188,20 @@ USART2_send:
  * Polling receive - wait for a character to arrive from the USART,
  * then return received byte to caller in r0
  */
+    .equ USART2_SR_RXNE_MASK, 0x00000020 // complement of SR
 USART2_recv:
-	push {lr}
-	/* Insert your code here */
-	pop {pc}
+    push {r1,r2,r3,lr}
+check_RXNE:
+    ldr r1, =USART2_SR // address of SR
+    ldr r2, [r1] // r2=data in SR
+    ldr r3, =USART2_SR_RXNE_MASK // complement
+    and r2,r2,r3 // check value of RXNE
+    cmp r2, #0  // r2>0 if RXNE=1
+    beq check_RXNE // if not equal, keep checking
 
-	.end
+    ldr r1, =USART2_DR // r1 <= address of data register
+    ldr r0, [r1] // r0 <= contents of data register
+    pop {r1,r2,r3,pc}
+
+
+    .end

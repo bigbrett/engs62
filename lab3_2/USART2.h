@@ -25,3 +25,7 @@ void USART2_send(uint8_t data);
  * Read a byte from the USART2 peripheral.  Polling driver/blocking call.
  */
 uint8_t USART2_recv(void);
+
+
+/* Clears interrupt flag */
+void USART2_clr(void);
