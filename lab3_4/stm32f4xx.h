@@ -54,8 +54,21 @@ volatile typedef struct {
 } SYSTICK_TypeDef;
 
 
-
-
+/* Analog to Digital Converter */
+volatile typedef struct {
+	uint32_t SR; 					/* ADC Status Register 				   - offset 0x00  */
+	uint32_t CR1;					/* ADC Control Register #1 			   - offset 0x04  */
+	uint32_t CR2; 					/* ADC Control Register #2 			   - offset 0x08  */
+	uint32_t SMPR1;					/* ADC Sample Time Register #1 		   - offset 0x10  */
+	uint32_t SMPR2;					/* ADC Sample Time Register #2 		   - offset 0x14  */
+	uint32_t SMPR3;					/* ADC Sample Time Register #3 		   - offset 0x18  */
+	uint32_t SQR1; 					/* ADC Regular Sequence Register #1    - offset 0x2C  */
+	uint32_t SQR2; 					/* ADC Regular Sequence Register #2    - offset 0x30  */
+	uint32_t SQR3; 					/* ADC Regular Sequence Register #3    - offset 0x34  */
+	uint32_t DR; 					/* ADC Regular Data Register		   - offset 0x4C  */
+	uint32_t CSR; 					/* ADC Common Status Register	-base 0x300 -offset 0x00  */
+	uint32_t CCR; 					/* ADC Common Control Register	-base 0x300 - offset 0x04  */
+} ADC_TypeDef;
 
 /* See datasheet for memory map / base addresses */
 
@@ -71,6 +84,7 @@ volatile typedef struct {
 #define GPIOx_MODER_PIN13_MASK  (0xf3ffffff)
 #define GPIOx_MODER_PIN14_MASK  (0xcfffffff)
 #define GPIOx_MODER_PIN15_MASK  (0x3fffffff)
+#define GPIOx_MODER_PIN1_GPANALOG (0x0000000c) // 11 in nibble 0 bits 2 and 4
 #define GPIOx_MODER_PIN12_GPOUT (0x01000000)
 #define GPIOx_MODER_PIN13_GPOUT (0x04000000)
 #define GPIOx_MODER_PIN14_GPOUT (0x10000000)
@@ -87,3 +101,12 @@ volatile typedef struct {
 #define SYSTICK_BASE		(0xE000E010) /* Base address of SYSTICK register block */
 #define SYSTICK 			((SYSTICK_TypeDef*)SYSTICK_BASE)
 #define SYSTICK_ENABLE_MASK 	(0x00000007)
+
+
+/* ADC Definitions */
+#define ADC_BASE 				(0x40012000) // Base Address of ADC peripheral
+#define ADC						((ADC_TypeDef*)ADC_BASE)
+
+
+
+
