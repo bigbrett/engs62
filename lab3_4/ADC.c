@@ -34,6 +34,7 @@ void ADC_init(void)
 
 	/* Configure Channel 1 as first conversion in regular sequence */
 		ADC->SQR3 |= 0x00000001; // nibble 1 <= 1
+		// TODO: check if this is correct
 
 	/* SET SAMPLE TIME/ RESOLUTION */
 		//TODO
