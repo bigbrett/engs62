@@ -105,8 +105,13 @@ valid: // r0 holds actual value
 /* Kicks off systick up counter on button press */
 button_handler:
 	push {r0-r3, lr}
-	bl ADC_scan
-	pop {r0-r3, pc}
+	bl lock_mutex // check mutex
+	cmp r0, #0
+	bne bh_fail // do nothing if locked
+	bl ADC_scan // if unlocked, then scan ADC
+	bl unlock_mutex // unlock
+bh_fail:
+	pop {r0-r3, pc} // return
 
 
 

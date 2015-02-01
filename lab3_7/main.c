@@ -8,13 +8,31 @@
 #include "systick.h"	/* systick timer support */
 #include "ADC.h" 		/* ADC operations */
 #include "button.h" 	/* button routines in button.S */
-
+#include "mutex.h" 		/* mutex support */
 
 /* Interrupt handler for USART2 */
 void __attribute__ ((interrupt)) USART2_handler(void)
 {
+	int status; // mutex lock status
+
 	uint8_t word = USART2_recv();
-	USART2_send(word);
+	if (word == 'h') {
+		ADC_printHist();
+	}
+	else if (word == 'a') {
+		ADC_avgHist();
+	}
+	else if (word == 'c') {
+		status = lock_mutex(); // check mutex before clearing
+
+		if (status == 0) { // if mutex is unlocked
+			ADC_clrHist(); // clear history
+			unlock_mutex();  // unlock mutex
+		}
+
+	} else {
+		USART2_send(word);
+	}
 	USART2_clr();
 }
 

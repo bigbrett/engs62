@@ -31,7 +31,6 @@ void ADC_init(void)
     /* Turn on ADC clock (bit 8 <= 1) */
 		RCC->APB2ENR |= 0x100;
 
-
 	/* Set ADC regular sequence register length (ADC_SQR1) to len=1 (0000) */
 		ADC->SQR1 &= ADC_SQR1_MASK;
 
@@ -68,8 +67,7 @@ void print_hex(uint32_t val)
 			nibbles[i] += 48;
 		}
 		else {
-			nibbles[i] += 55;
-		}
+			nibbles[i] += 55; }
 	}
 
 	// Print array in reverse order
@@ -102,9 +100,10 @@ void ADC_updateHist(uint32_t newval)
 void ADC_printHist(void)
 {
 	char* hist = "History:\n\r\0";
-	char* curr = "Current >> \0";
+	char* curr = "Latest  >> \0";
 	char* newline = "\n\r\0";
-
+	TXword(newline);
+	TXword("***** ADC SAMPLE HISTORY *****");
 	/* print history */
 	int i;
 	for (i=0; i<4; i++) {
@@ -125,18 +124,39 @@ void ADC_printHist(void)
 }
 
 
+void ADC_avgHist(void)
+{
+	uint32_t avg = 0;
+	int i;
+	for (i=0; i<4; i++) {
+		avg += history[i];
+	}
+	avg = avg/4; // take average
+
+	TXword("\n\rAverage >> ");
+	print_hex(avg);
+}
+
+
+void ADC_clrHist(void)
+{
+	int i;
+	for (i=0; i<4; i++) {
+		history[i] = 0;
+	}
+	TXword("\n\r** History Cleared **\n\r");
+}
+
 /* handles ADC_button_press */
 void ADC_scan(void)
 {
     /* Begin conversion by setting SWSTRT (bit 30) to 1*/
 	ADC->CR2 |= 0x40000000; // bit 30 <= 1
-
 	uint32_t data = ADC_getData(); // current sample from ADC
 	ADC_updateHist(data);   // add value to history
-	ADC_printHist(); 		// display history
-
-//    while (ADC->SR & 0x2 == 0); // busywait for EOC flag
-//   	data = ADC->DR; // get ADC data (implicit EOC flag reset)
+	TXword("\n\r***** BUTTON PRESS REGISTERED *****\n\r");
+	TXword("VALUE >> ");
+	print_hex(data);
 }
 
 
