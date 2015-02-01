@@ -5,7 +5,10 @@
 #include "stm32f4xx.h"  /* Useful definitions for the MCU */
 #include "LED.h"        /* C routines in LED.c */
 #include "USART2.h"     /* assembly routines in USART.S */
-#include "systick.h"
+#include "systick.h"	/* systick timer support */
+#include "ADC.h" 		/* ADC operations */
+#include "button.h" 	/* button routines in button.S */
+
 
 /* Interrupt handler for USART2 */
 void __attribute__ ((interrupt)) USART2_handler(void)
@@ -13,33 +16,6 @@ void __attribute__ ((interrupt)) USART2_handler(void)
 	uint8_t word = USART2_recv();
 	USART2_send(word);
 	USART2_clr();
-}
-
-
-/* Takes a 32-bit value and prints on console as hexadecimal number */
-void print_hex(uint32_t val)
-{
-	uint32_t nibbles[8]; // array holding each nibble
-	uint32_t mask = 0xF; // 1-nibble mask
-	int i;
-
-	// foreach nibble, get LSNibble, add offset, then LSR 4 bits to so next nibble is LSN
-	for (i=0; i<8; ++i, val>>=4) {
-		nibbles[i]= val & mask; // get nibble i
-
-		// add ASCII offsets
-		if (nibbles[i]< 10) {
-			nibbles[i] += 48;
-		}
-		else {
-			nibbles[i] += 55;
-		}
-	}
-
-	// Print array in reverse order
-	for (i=7; i>=0; i--) {
-		USART2_send(nibbles[i]);
-	}
 }
 
 
@@ -64,7 +40,12 @@ int main()
 	USART2_init();
 	USART2_send('!');
 
-	print_hex(234234234);
+	print_hex(0x00001111);
+	USART2_send('!');
+
+	button_init();
+	ADC_init();
+	button_scan();
 
 	/* Wait here forever */
 	while(1);

@@ -22,9 +22,8 @@
     .global USART2_send
     .global USART2_recv
     .global USART2_clr
-
+	.global TXword
     .text
-
 /*
  * USART2_init
  *
@@ -202,5 +201,26 @@ check_RXNE:
     ldr r1, =USART2_DR // r1 <= address of data register
     ldr r0, [r1] // r0 <= contents of data register
     pop {r1,r2,r3,pc}
+
+
+/* Serially transmits a word over UART
+         r0 MUST point to start of word */
+TXword:
+    push {r1,r2,lr}
+TXloop:
+    ldrb r1,[r0] // load target byte into r1
+    cmp r1,#0 // check if end of string
+    beq return // if end of string, return to handler
+    mov r2,r0 // store r0
+    mov r0, r1 // pass bit as argument in r0
+    bl USART2_send // send bit
+    mov r0,r2 // restore address in r0
+    add r0,1 // increment pointer towards next bit
+    b TXloop
+return:
+    pop {r1,r2,pc} // else return to handler
+/* end TXword*/
+
+
 
     .end

@@ -29,3 +29,4 @@ uint8_t USART2_recv(void);
 
 /* Clears interrupt flag */
 void USART2_clr(void);
+
