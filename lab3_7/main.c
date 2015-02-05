@@ -50,24 +50,9 @@ int main()
 	/*
 	 * Demonstrate use of in-line assembly - enable interrupts
 	 */
-	__asm ("  cpsie i \n" );
+	__asm ("  cpsie i \n" )button_init();
 
 
-	/* Initialize the USART for 9600, 8N1, send '!' - calls into USART2.S */
-	/* NOTE: must set USART2 interrupt config register to enable TX/RX interrupts */
-	USART2_init();
-	USART2_send('!');
-
-	print_hex(0x00001111);
-	USART2_send('!');
-
-	button_init();
-	ADC_init();
-	button_scan();
-
-	/* Wait here forever */
-	while(1);
-
-	/* We'll never reach this line */
-	return 0;
 }
+
+
