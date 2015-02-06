@@ -50,7 +50,7 @@ int main()
 	/*
 	 * Demonstrate use of in-line assembly - enable interrupts
 	 */
-	__asm ("  cpsie i \n" )button_init();
+	__asm ("  cpsie i \n" );
 
 
 }
