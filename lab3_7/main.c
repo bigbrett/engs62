@@ -9,6 +9,7 @@
 #include "ADC.h" 		/* ADC operations */
 #include "button.h" 	/* button routines in button.S */
 #include "mutex.h" 		/* mutex support */
+#include "timer.h"
 
 /* Interrupt handler for USART2 */
 void __attribute__ ((interrupt)) USART2_handler(void)
@@ -37,22 +38,24 @@ void __attribute__ ((interrupt)) USART2_handler(void)
 }
 
 
-int main()
+int main(void)
 {
-	/*
-	 * Demonstrate use of LED.h/LED.c - modifies hardware registers using C
-	 */
 	LED_init();
 	LED_update(LED_BLUE_ON);
-	LED_update(LED_BLUE_OFF);
-	LED_update(LED_RED_ON | LED_BLUE_ON | LED_ORANGE_ON | LED_GREEN_ON );
 
 	/*
 	 * Demonstrate use of in-line assembly - enable interrupts
 	 */
 	__asm ("  cpsie i \n" );
 
+	timer_init();
 
+	/*
+	 * Demonstrate use of LED.h/LED.c - modifies hardware registers using C
+	 */
+	LED_update(LED_GREEN_ON);
+
+	while (1);
 }
 
 

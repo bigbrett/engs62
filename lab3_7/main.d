@@ -1,5 +1,5 @@
 main.o: main.c stdint.h stm32f4xx.h LED.h USART2.h systick.h ADC.h \
- button.h mutex.h
+ button.h mutex.h timer.h
 
 stdint.h:
 
@@ -16,3 +16,5 @@ ADC.h:
 button.h:
 
 mutex.h:
+
+timer.h:

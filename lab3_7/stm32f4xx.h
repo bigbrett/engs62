@@ -210,6 +210,7 @@ volatile typedef struct {
 #define GPIOx_AFRL_AFRL5_AF7    (0x00700000)
 #define GPIOx_AFRL_AFRL6_AF5    (0x05000000)
 #define GPIOx_AFRL_AFRL6_AF1	(0x01000000)
+#define GPIOx_AFRL_AFRL6_AF2	(0x02000000)
 #define GPIOx_AFRL_AFRL6_AF7    (0x07000000)
 #define GPIOx_AFRL_AFRL7_AF5    (0x50000000)
 
@@ -223,6 +224,7 @@ volatile typedef struct {
 #define GPIOx_AFRH_AFRH15_MASK  (0x0fffffff)
 #define GPIOx_AFRH_AFRH9_AF7    (0x00000070)
 #define GPIOx_AFRH_AFRH10_AF7   (0x00000700)
+#define GPIOx_AFRH_AFRH12_AF1   (0x00010000)
 #define GPIOx_AFRH_AFRH12_AF2   (0x00020000)
 #define GPIOx_AFRH_AFRH13_AF2   (0x00200000)
 #define GPIOx_AFRH_AFRH13_AF5   (0x00500000)
