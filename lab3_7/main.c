@@ -10,6 +10,7 @@
 #include "button.h" 	/* button routines in button.S */
 #include "mutex.h" 		/* mutex support */
 #include "timer.h"
+#include "servo.h"
 
 /* Interrupt handler for USART2 */
 void __attribute__ ((interrupt)) USART2_handler(void)
@@ -48,14 +49,13 @@ int main(void)
 	 */
 	__asm ("  cpsie i \n" );
 
+	USART2_init();
+	ADC_init();
 	timer_init();
 
-	/*
-	 * Demonstrate use of LED.h/LED.c - modifies hardware registers using C
-	 */
-	LED_update(LED_GREEN_ON);
-
-	while (1);
+	/* Busywait loop scanning potentiometer */
+	while (1)
+		servo_potCtrl();
 }
 
 

@@ -108,7 +108,7 @@ button_handler:
 	bl lock_mutex // check mutex
 	cmp r0, #0
 	bne bh_fail // do nothing if locked
-	bl ADC_scan // if unlocked, then scan ADC
+	bl ADC_buttonScan // if unlocked, then scan ADC
 	bl unlock_mutex // unlock
 bh_fail:
 	pop {r0-r3, pc} // return

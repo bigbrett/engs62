@@ -18,7 +18,7 @@ void enable_PB6_AF2()
 	GPIOB->MODER |= GPIOx_MODER_PIN6_AF; // configure Port B pin 6 for AF
 
 	// Set AF mode to TIM4
-	GPIOB->AFRL |= GPIOx_AFRL_AFRL6_MASK;
+	GPIOB->AFRL &= GPIOx_AFRL_AFRL6_MASK;
 	GPIOB->AFRL |= GPIOx_AFRL_AFRL6_AF2; // map TIM4 to Pin 6 by setting AF as AF1
 
 	// Enable tim4 peripheral clock
@@ -33,6 +33,7 @@ void timer_init()
 
 	// configure CCMR1 OC1M field as "PWM mode 1" (bits 6:4 <= 110)
 	TIM4->TIMx_CCMR1 |= TIMx_CCMR1_PWMMODE1EN;
+	TIM4->TIMx_CCER |= 0x1;
 
 	// Set PSC and ARR to achieve the desired fundemental frequency of 1kHz
 	TIM4->TIMx_PSC = 159; // SYSCLOCK/(PSC+1) = CK_CNT; and SYSCLOCK = 16Mhz
@@ -43,6 +44,11 @@ void timer_init()
 
 	// Enable timer by writing 1 to CEN field in TIM4_CR1
     TIM4->TIMx_CR1 |= 0x1;
+
 }
 
-
+/* PUBLIC: updates TIM4 duty cycle to value passed as argument */
+void timer_updateDutyCycle(uint32_t newval)
+{
+	TIM4->TIMx_CCR1 = newval;
+}

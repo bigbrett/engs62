@@ -81,6 +81,8 @@ void print_hex(uint32_t val)
 
 uint32_t ADC_getData(void)
 {
+	/* Begin conversion by setting SWSTRT (bit 30) to 1*/
+	ADC->CR2 |= 0x40000000; // bit 30 <= 1
 	while (ADC->SR & 0x2 ==0); // busywait for EOC flag
 	return ADC->DR; // return Data (implicit EOC flag reset)
 }
@@ -148,11 +150,9 @@ void ADC_clrHist(void)
 }
 
 /* handles ADC_button_press */
-void ADC_scan(void)
+void ADC_buttonScan(void)
 {
-    /* Begin conversion by setting SWSTRT (bit 30) to 1*/
-	ADC->CR2 |= 0x40000000; // bit 30 <= 1
-	uint32_t data = ADC_getData(); // current sample from ADC
+	uint32_t data = ADC_getData(); // cget data from ADC
 	ADC_updateHist(data);   // add value to history
 	TXword("\n\r***** BUTTON PRESS REGISTERED *****\n\r");
 	TXword("VALUE >> ");
@@ -160,6 +160,14 @@ void ADC_scan(void)
 }
 
 
+uint32_t ADC_scanEcho(void)
+{
+	uint32_t data = ADC_getData(); // Get value from ADC
+	ADC_updateHist(data);   // add value to history
+	TXword("VALUE >> ");
+	print_hex(data);
+	return data;
+}
 
 
 
