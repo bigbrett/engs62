@@ -18,3 +18,6 @@ void USART2_putstr(uint8_t *buffer);
 
 /* Interrupt handler */
 void USART2_handler(void);
+
+/* prints hex value over usart2 */
+void print_hex(uint32_t val);

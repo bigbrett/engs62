@@ -14,8 +14,10 @@ typedef enum {
 	STATE_TRAIN_WAIT,
 	STATE_PED_INIT,
 	STATE_PED_WAIT,
+	STATE_MAINTENANCE_INIT,
 	STATE_MAINTENANCE
 } state_t;
+
 
 /* Initialize the finite state machine */
 void fsm_init(void);
@@ -32,13 +34,19 @@ state_t fsm_get_state(void);
 /* Alter FSM state - only do this when you have acquired the lock! */
 void fsm_set_state(state_t new_state);
 
+void close_gate(void);
+void open_gate(void);
+
+
 /* Getter/Setters for FSM control signals */
 uint8_t get_PED(void);
 uint8_t get_ARRIVING(void);
 uint8_t get_CLOSED(void);
 uint8_t get_CLEAR(void);
+uint8_t get_HOLD(void);
 void set_PED(uint8_t val);
 void set_ARRIVING(uint8_t val);
 void set_CLOSED(uint8_t val);
 void set_CLEAR(uint8_t val);
+void set_HOLD(uint8_t val);
 

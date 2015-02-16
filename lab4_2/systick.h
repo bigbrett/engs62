@@ -9,7 +9,7 @@
 void __attribute__ ((interrupt)) systick_handler(void);
 
 /* Sets systick interrupts */
-void systick_init(void);
+void systick_init(void(*systick_callback_fn)(void));
 
 /* Sets systick to new value and resets */
 void systick_reset(uint32_t period);
@@ -17,3 +17,4 @@ void systick_reset(uint32_t period);
 /* Disbles SYSTICK timer */
 void systick_kill(void);
 
+static uint8_t CTR;

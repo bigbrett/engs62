@@ -7,7 +7,7 @@
  */
 
 /* PUBLIC: controls position of servo motor based on value of external potentiometer */
-void servo_potCtrl();
+//void servo_potCtrl();
 
 /* rotate servo to 0 degrees */
 void servo_gateClose();

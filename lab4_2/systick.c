@@ -6,38 +6,24 @@
 #define WAIT_1_MS 16000 /* 1ms of clock cycles */
 
 /* "TIMER" that is incremented by the systick handler, along with getters/setters */
-uint32_t TIMER = 0;
-uint32_t get_TIMER(void)
+static uint8_t systick_CTR = 0;
+uint32_t get_CTR(void)
 {
-	return TIMER;
+	return systick_CTR;
 }
-void set_TIMER(uint32_t newtime)
+void set_CTR(uint32_t newtime)
 {
-	TIMER = newtime;
+	systick_CTR = newtime;
 }
-void inc_TIMER(void)
+void inc_CTR(void)
 {
-	TIMER++;
+	++systick_CTR;
 }
 
 
 /* Define callback functions */
 static void (*rx_callback_fn)(void);
 
-
-/*
- * Systick Interrupt Service Routine
- * increments timer each systick pulse
- */
-void __attribute__ ((interrupt)) systick_handler(void)
-{
-	// increment timer
-	inc_TIMER();
-
-	// Call the callback function
-	if (rx_callback_fn)
-		rx_callback_fn();
-}
 
 
 /* updates clock period of systick timer by writing new value into RVR */
@@ -47,7 +33,7 @@ void systick_reset(uint32_t period)
 }
 
 /* Sets systick interrupts */
-void systick_init(void)
+void systick_init(void(*systick_callback_fn)(void))
 {
 	// configure proper callback function
 	rx_callback_fn = systick_callback_fn;
@@ -59,7 +45,7 @@ void systick_init(void)
 	__asm (" cpsid i \n ");
 
 	/* Write new reload value to RVR */
-	SYSTICK->LOAD = WAIT_1_MS*30; // 30ms
+	SYSTICK->LOAD = WAIT_1_MS*30; // 30ms interrupts
 
 	/* Write 0 to CVR to clear */
 	SYSTICK->VAL = 0x0;
@@ -82,7 +68,7 @@ void systick_set(uint32_t newtime)
 		__asm (" cpsid i \n ");
 
 		/* Write new reload value to RVR */
-		SYSTICK->LOAD = WAIT_1_MS*1000*newtime; //
+		SYSTICK->LOAD = WAIT_1_MS*1000*newtime; // 1 second * newtime
 
 		/* Write 0 to CVR to clear */
 		SYSTICK->VAL = 0x0;
@@ -102,4 +88,15 @@ void systick_kill(void)
 }
 
 
+
+/*
+ * Systick Interrupt Service Routine
+ * increments timer each systick pulse
+ */
+void __attribute__ ((interrupt)) systick_handler(void)
+{
+	// Call the callback function
+	if (rx_callback_fn)
+		rx_callback_fn();
+}
 
