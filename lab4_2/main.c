@@ -193,7 +193,7 @@ void main(void)
 
 	/* initialize the finite state machine */
 	fsm_init();
-
+	open_gate();
 	/* Enable interrupts - do this after initializing the system */
 	__asm ("  cpsie i \n" );
 

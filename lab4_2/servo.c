@@ -21,19 +21,18 @@
 //
 //	// update duty cycle
 //	TIM4->TIMx_CCR1 = new_dc;
-//	//timer_updateDutyCycle(new_dc);
 //}
 
 /* send servo motor to 0 degrees */
 void servo_gateClose(void)
 {
-	TIM4->TIMx_CCR1 = 100;
+	TIM4->TIMx_CCR1 = 0;
 }
 
 /* sends servo motor to 90 degrees */
 void servo_gateOpen(void)
 {
-	TIM4->TIMx_CCR1 = 200;
+	TIM4->TIMx_CCR1 = 4095;
 }
 
 //void servo_scanLoop(void)

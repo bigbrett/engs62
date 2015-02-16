@@ -27,7 +27,7 @@ void enable_PB6_AF2()
 /* PUBLIC: Initializes timer to interact with servo motor via PWM on tim4 signal */
 void tim4_init()
 {
-	// Enable port D pin 6, and configure for AF2
+	// Enable port B pin 6, and configure for AF2
 	enable_PB6_AF2();
 
 	// configure CCMR1 OC1M field as "PWM mode 1" (bits 6:4 <= 110)

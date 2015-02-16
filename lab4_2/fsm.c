@@ -135,16 +135,13 @@ void fsm_set_state(state_t new_state)
 			/* No trains, peds, or maintenance
 			 * DO: initialize 3 minute traffic timer, set lights to green */
 		case STATE_TRAFFIC_INIT:
+			set_CTR(0); //reset systick timer
+			open_gate();
+			start_traffic();
+
 			// clear all control signals, as they will trip upon an interrupt
 			set_CLOSED(0);
 			set_CLEAR(0);
-
-			// clear timer count
-			set_CTR(0);
-
-			// start traffic timer for 5 seconds
-
-			start_traffic();
 
 			USART2_putstr("STATE: TRAFFIC_INIT\r\n");
 			echo_signals();
@@ -196,6 +193,7 @@ void fsm_set_state(state_t new_state)
 			/* Pedestrian pushes button
 			 * DO: Wait until traffic timer > 3min, stop traffic, let peds cross for 20 seconds, start traffic */
 		case STATE_PED_INIT:
+			open_gate();
 			stop_traffic();
 			LED_update( LED_ORANGE_ON | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_OFF);
 			systick_set(1); // start countdown for 20 seconds
@@ -212,8 +210,8 @@ void fsm_set_state(state_t new_state)
 			/* MAINTENANCE signal from substation indicates maintenance
 			 * DO: issue HOLD message, stop traffic, close gates, flash blue light, wait until CLEAR signal */
 		case STATE_MAINTENANCE_INIT:
-			stop_traffic();
 			close_gate();
+			stop_traffic();
 			set_CLOSED(1);
 			set_CTR(0); // initialize systick counter
 
@@ -224,6 +222,7 @@ void fsm_set_state(state_t new_state)
 			break;
 
 		case STATE_MAINTENANCE:
+			close_gate();
 			// if CTR==0, turn ON LED
 			if (get_CTR() == 0) {
 				LED_update(LED_BLUE_ON | LED_RED_ON);
