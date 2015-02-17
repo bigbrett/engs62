@@ -123,6 +123,12 @@ void fsm_set_state(state_t new_state)
 			LED_init();
 			set_CTR(0);
 
+			set_CLOSED(0);
+			set_CLEAR(0);
+			set_HOLD(0);
+			set_ARRIVING(0);
+			set_PED(0);
+
 			/* Display usage information */
 			USART2_putstr("STATE: RESET\r\n");
 			USART2_putstr("Press 'a' for ARRIVING signal -- train coming\r\n");
@@ -135,8 +141,13 @@ void fsm_set_state(state_t new_state)
 			/* No trains, peds, or maintenance
 			 * DO: initialize 3 minute traffic timer, set lights to green */
 		case STATE_TRAFFIC_INIT:
-			set_CTR(0); //reset systick timer
+			set_CLOSED(0);
+			set_CLEAR(0);
+			set_HOLD(0);
+			set_ARRIVING(0);
+
 			open_gate();
+			set_CTR(0); //reset systick timer
 			start_traffic();
 
 			// clear all control signals, as they will trip upon an interrupt
@@ -193,6 +204,7 @@ void fsm_set_state(state_t new_state)
 			/* Pedestrian pushes button
 			 * DO: Wait until traffic timer > 3min, stop traffic, let peds cross for 20 seconds, start traffic */
 		case STATE_PED_INIT:
+			set_PED(1);
 			open_gate();
 			stop_traffic();
 			LED_update( LED_ORANGE_ON | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_OFF);
@@ -214,6 +226,7 @@ void fsm_set_state(state_t new_state)
 			stop_traffic();
 			set_CLOSED(1);
 			set_CTR(0); // initialize systick counter
+			LED_update(LED_BLUE_ON | LED_RED_ON);
 
 			USART2_putstr("STATE: MAINTENANCE_INIT\r\n");
 			echo_signals();
@@ -226,22 +239,24 @@ void fsm_set_state(state_t new_state)
 			// if CTR==0, turn ON LED
 			if (get_CTR() == 0) {
 				LED_update(LED_BLUE_ON | LED_RED_ON);
-				inc_CTR();
+//				inc_CTR();
 			}
 			// IF CTR==1, turn OFF LED
 			else if (get_CTR() == 1) {
 				LED_update(LED_BLUE_OFF | LED_RED_ON);
-				inc_CTR();
+//				inc_CTR();
 			}
-			// if CTR >= 2, reset CTR and turn ON blue LED
+			// if CTR == 2, turn ON blue LED
 			else if (get_CTR() == 2){
 				LED_update(LED_BLUE_ON | LED_RED_ON);
-				inc_CTR();
-			}
-			else {
-				LED_update(LED_BLUE_OFF | LED_RED_ON);
 				set_CTR(0);
+//				inc_CTR();
 			}
+//			// if CTR > 2, reset coutner, turn OFF LED
+//			else {
+//				LED_update(LED_BLUE_OFF | LED_RED_ON);
+//				set_CTR(0);
+//			}
 
 			USART2_putstr("STATE: MAINTENANCE\r\n");
 			echo_signals();

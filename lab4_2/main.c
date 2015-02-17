@@ -87,28 +87,20 @@ void userbutton_callback_fn(void)
 	if (fsm_lock() == FSM_LOCK_ACQUIRED )
 	{
 		set_PED(1); // crosswalk signal goes high
-		switch( fsm_get_state() ) {
-
-		// only valid state where pedestrians could be allowed to cross
-		case STATE_RESET:
-			fsm_set_state(STATE_TRAFFIC_INIT);
-			break;
-
-		case STATE_TRAFFIC_INIT:
-			fsm_set_state(STATE_PED_INIT);
-			break;
-
-		case STATE_TRAFFIC_TIMING:
-			fsm_set_state(STATE_PED_INIT);
-			break;
-
-		case STATE_TRAFFIC_FLOWING:
-			fsm_set_state(STATE_PED_INIT);
-			break;
-
-		default:
-			break;
-		}
+//		switch( fsm_get_state() ) {
+//
+//		// only valid state where pedestrians could be allowed to cross
+//		case STATE_RESET:
+//			fsm_set_state(STATE_TRAFFIC_INIT);
+//			break;
+//
+//		case STATE_TRAFFIC_INIT:
+//			fsm_set_state(STATE_PED_INIT);
+//			break;
+//
+//		default:
+//			break;
+//		}
 		fsm_unlock();
 	}
 }
@@ -137,12 +129,12 @@ void systick_callback_fn(void)
 
 			/* walk timer done, deal with edge cases or allow traffic to flow again*/
 		case STATE_PED_INIT:
-			if (get_ARRIVING() == 1) // if train coming, deal with it
-				fsm_set_state(STATE_TRAIN_INIT);
-			else if (get_HOLD() == 1) // if maintenance, deal with it
-				fsm_set_state(STATE_MAINTENANCE_INIT);
-			else
-				set_PED(0);
+//			if (get_ARRIVING() == 1) // if train coming, deal with it
+//				fsm_set_state(STATE_TRAIN_INIT);
+//			else if (get_HOLD() == 1) // if maintenance, deal with it
+//				fsm_set_state(STATE_MAINTENANCE_INIT);
+			//else
+			set_PED(0);
 			fsm_set_state(STATE_TRAFFIC_INIT);
 			break;
 

@@ -95,6 +95,7 @@ void systick_kill(void)
  */
 void __attribute__ ((interrupt)) systick_handler(void)
 {
+	inc_CTR();
 	// Call the callback function
 	if (rx_callback_fn)
 		rx_callback_fn();

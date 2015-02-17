@@ -26,13 +26,13 @@
 /* send servo motor to 0 degrees */
 void servo_gateClose(void)
 {
-	TIM4->TIMx_CCR1 = 0;
+	TIM4->TIMx_CCR1 = 85;
 }
 
 /* sends servo motor to 90 degrees */
 void servo_gateOpen(void)
 {
-	TIM4->TIMx_CCR1 = 4095;
+	TIM4->TIMx_CCR1 = 200;
 }
 
 //void servo_scanLoop(void)
