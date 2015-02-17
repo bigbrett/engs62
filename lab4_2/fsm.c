@@ -65,12 +65,11 @@ void open_gate(void) {
 }
 /* FSM method to stop traffic and update necessary signals*/
 void stop_traffic(void) {
-	// TODO: eventually integrate a yellow light?
 	LED_update( LED_ORANGE_OFF | LED_RED_ON | LED_BLUE_OFF | LED_GREEN_OFF );
 	USART2_putstr("TRAFFIC STOPPED\r\n");
 }
 void start_traffic(void) {
-	systick_set(5); // start traffic timer for 5 seconds
+	//systick_set(5); // start traffic timer for 5 seconds
 	LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_ON);
 	USART2_putstr("TRAFFIC FLOW RESUMED\r\n");
 }
@@ -128,6 +127,7 @@ void fsm_set_state(state_t new_state)
 			set_HOLD(0);
 			set_ARRIVING(0);
 			set_PED(0);
+			systick_set(5); // start traffic timer for 5 seconds
 
 			/* Display usage information */
 			USART2_putstr("STATE: RESET\r\n");
@@ -158,64 +158,53 @@ void fsm_set_state(state_t new_state)
 			echo_signals();
 			break;
 
-		case STATE_TRAFFIC_TIMING:
-			set_CLOSED(0);
-
-			USART2_putstr("STATE: TRAFFIC_TIMING\r\n");
-			echo_signals();
-			break;
-
-
 			/* No trains, peds, or maintenance
 			 * DO: traffic can flow continuously for a minimum of 3 mins */
-		case STATE_TRAFFIC_FLOWING:
-			//LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_ON);
-			start_traffic();
-			set_CLOSED(0);
-
-			USART2_putstr("STATE: TRAFFIC_FLOWING\r\n");
-			echo_signals();
-			break;
+//		case STATE_TRAFFIC_FLOWING:
+//			//LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_ON);
+//			start_traffic();
+//			set_CLOSED(0);
+//
+//			USART2_putstr("STATE: TRAFFIC_FLOWING\r\n");
+//			echo_signals();
+//			break;
 
 			/* ARRIVING signal from substation indicates Train is coming.
 			 * DO: stop traffic flow, close gate, send CLOSED signal to substation */
 		case STATE_TRAIN_INIT:
-			close_gate();
-			stop_traffic();
-			set_CLOSED(1);
+			set_CTR(0);
+			LED_update(LED_ORANGE_ON | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_OFF);
 
 			USART2_putstr("STATE: TRAIN_INIT\r\n");
 			echo_signals();
-
+			systick_set(1);
 			break;
 
-			/* Wait for train to pass
-			 * DO: keep everything closed until CLEAR signal from substation */
-		case STATE_TRAIN_WAIT:
+		case STATE_TRAIN:
+			USART2_putstr("STATE: TRAIN\r\n");
 			stop_traffic();
 			close_gate();
-
-			USART2_putstr("STATE: TRAIN_WAIT\r\n");
 			echo_signals();
-			/* Turn on the red LED only */
 			break;
-
 
 			/* Pedestrian pushes button
 			 * DO: Wait until traffic timer > 3min, stop traffic, let peds cross for 20 seconds, start traffic */
 		case STATE_PED_INIT:
 			set_PED(1);
 			open_gate();
-			stop_traffic();
+			set_CTR(0);
+			//stop_traffic();
 			LED_update( LED_ORANGE_ON | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_OFF);
-			systick_set(1); // start countdown for 20 seconds
+			//systick_set(1); // start countdown for 20 seconds
 
 			USART2_putstr("STATE: PED_INIT\r\n");
 			echo_signals();
 			break;
 
-		case STATE_PED_WAIT:
-			USART2_putstr("STATE: PED_WAIT\r\n");
+		case STATE_PED_XING:
+			set_PED(0);
+			stop_traffic();
+			USART2_putstr("STATE: PED_XING\r\n");
 			echo_signals();
 			break;
 
@@ -226,7 +215,7 @@ void fsm_set_state(state_t new_state)
 			stop_traffic();
 			set_CLOSED(1);
 			set_CTR(0); // initialize systick counter
-			LED_update(LED_BLUE_ON | LED_RED_ON);
+			LED_update( LED_ORANGE_ON | LED_RED_OFF | LED_BLUE_ON | LED_GREEN_OFF);
 
 			USART2_putstr("STATE: MAINTENANCE_INIT\r\n");
 			echo_signals();
@@ -238,17 +227,17 @@ void fsm_set_state(state_t new_state)
 			close_gate();
 			// if CTR==0, turn ON LED
 			if (get_CTR() == 0) {
-				LED_update(LED_BLUE_ON | LED_RED_ON);
+				LED_update(LED_BLUE_ON | LED_RED_ON | LED_ORANGE_OFF | LED_GREEN_OFF);
 //				inc_CTR();
 			}
 			// IF CTR==1, turn OFF LED
 			else if (get_CTR() == 1) {
-				LED_update(LED_BLUE_OFF | LED_RED_ON);
+				LED_update(LED_BLUE_OFF | LED_RED_ON | LED_ORANGE_OFF | LED_GREEN_OFF);
 //				inc_CTR();
 			}
 			// if CTR == 2, turn ON blue LED
 			else if (get_CTR() == 2){
-				LED_update(LED_BLUE_ON | LED_RED_ON);
+				LED_update(LED_BLUE_ON | LED_RED_ON | LED_ORANGE_OFF | LED_GREEN_OFF);
 				set_CTR(0);
 //				inc_CTR();
 			}
