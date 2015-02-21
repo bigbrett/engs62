@@ -5,12 +5,6 @@
  *      Author: armdev
  */
 #include <USART3.h>
-//#include <USART2.h>
-#include <cortexm4_nvic-template.h>
-#include <stm32f4xx_gpio.h>
-#include <stm32f4xx_rcc.h>
-#include <stm32f4xx_usart.h>
-
 
 /* flag to indicate USART3 has been initialized */
 /* toggled in init function */
@@ -76,7 +70,7 @@ void USART3_init(void(*USART3_rx_callback)(uint8_t byte))
 	if( USART3_rx_callback )
 	{
 		/* Configure Receive Interrupt */
-		NVIC_INTERRUPT_USART_3_ENABLE(); // TODO figure out why we cant define the interrupt functions
+		NVIC_INTERRUPT_USART_3_ENABLE();
 		USART3->CR1 |= USARTx_CR1_RXNEIE;
 		USART3->CR1 |= (USARTx_CR1_RE);
 	}
@@ -108,3 +102,30 @@ void USART3_putstr(uint8_t *buffer)
 	}
 }
 
+
+/* Takes a 32-bit value and prints on console as hexadecimal number */
+void USART3_printHex(uint32_t val)
+{
+	uint32_t nibbles[8]; // array holding each nibble
+	uint32_t mask = 0xF; // 1-nibble mask
+	int i;
+
+	// foreach nibble, get LSNibble, add offset, then LSR 4 bits to so next nibble is LSN
+	for (i=0; i<8; ++i, val>>=4) {
+		nibbles[i]= val & mask; // get nibble i
+
+		// add ASCII offsets
+		if (nibbles[i]< 10) {
+			nibbles[i] += 48;
+		}
+		else {
+			nibbles[i] += 55; }
+	}
+
+	// Print array in reverse order
+	for (i=7; i>=0; i--) {
+		USART2_putchar(nibbles[i]);
+	}
+	USART2_putchar('\n');
+	USART2_putchar('\r');
+}

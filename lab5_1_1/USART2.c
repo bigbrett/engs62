@@ -28,6 +28,7 @@ void __attribute__ ((interrupt)) USART2_handler(void)
 	}
 }
 
+
 void USART2_init(void(*USART2_rx_callback)(uint8_t byte))
 {
 	rx_callback_fn = USART2_rx_callback;
@@ -77,6 +78,7 @@ void USART2_init(void(*USART2_rx_callback)(uint8_t byte))
 	initialized = 1;
 }
 
+
 /* Send a single character out USART2 */
 void USART2_putchar(uint8_t byte)
 {
@@ -87,6 +89,7 @@ void USART2_putchar(uint8_t byte)
 		USART2->DR = byte;
 	}
 }
+
 
 /* Send a null-terminated string out USART2 */
 void USART2_putstr(uint8_t *buffer)
@@ -101,3 +104,30 @@ void USART2_putstr(uint8_t *buffer)
 	}
 }
 
+
+/* Takes a 32-bit value and prints on console as hexadecimal number */
+void printHex(uint32_t val)
+{
+	uint32_t nibbles[8]; // array holding each nibble
+	uint32_t mask = 0xF; // 1-nibble mask
+	int i;
+
+	// foreach nibble, get LSNibble, add offset, then LSR 4 bits to so next nibble is LSN
+	for (i=0; i<8; ++i, val>>=4) {
+		nibbles[i]= val & mask; // get nibble i
+
+		// add ASCII offsets
+		if (nibbles[i]< 10) {
+			nibbles[i] += 48;
+		}
+		else {
+			nibbles[i] += 55; }
+	}
+
+	// Print array in reverse order
+	for (i=7; i>=0; i--) {
+		USART2_putchar(nibbles[i]);
+	}
+	USART2_putchar('\n');
+	USART2_putchar('\r');
+}

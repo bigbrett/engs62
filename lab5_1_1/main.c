@@ -4,42 +4,17 @@
 
 void USART2_callback_fn(uint8_t byte)
 {
-	if( fsm_lock() == FSM_LOCK_ACQUIRED )
-	{
-		switch( fsm_get_state() )
-		{
-		case STATE_RESET:
-		case STATE_4:
-			if( byte == ' ')
-				fsm_set_state(STATE_1);
-			else
-				fsm_set_state(STATE_3);
-			break;
-		case STATE_1:
-			if( byte == ' ')
-				fsm_set_state(STATE_2);
-			else
-				fsm_set_state(STATE_4);
-			break;
-		case STATE_2:
-			if( byte == ' ')
-				fsm_set_state(STATE_3);
-			else
-				fsm_set_state(STATE_1);
-			break;
-		case STATE_3:
-			if( byte == ' ')
-				fsm_set_state(STATE_4);
-			else
-				fsm_set_state(STATE_2);
-			break;
-		default:
-			fsm_set_state(STATE_RESET);
-			break;
-		}
-		fsm_unlock();
-	}
+	USART3_putchar(byte); // forward to wifi module
+
 }
+
+void USART3_callback_fn(uint8_t byte)
+{
+	USART2_putchar(byte); // echo to computer
+
+}
+
+
 
 void userbutton_callback_fn(void)
 {

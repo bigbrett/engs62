@@ -14,3 +14,5 @@ void USART2_putchar(uint8_t byte);
 /* Send a null-terminated string out USART2 */
 void USART2_putstr(uint8_t *buffer);
 
+
+void USART2_printHex(uint32_t val);
