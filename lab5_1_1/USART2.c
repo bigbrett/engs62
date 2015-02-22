@@ -52,7 +52,8 @@ void USART2_init(void(*USART2_rx_callback)(uint8_t byte))
 	RCC->APB1ENR &= ~RCC_APB1ENR_USART2;
 	RCC->APB1RSTR |= RCC_APB1RSTR_USART2;
 	RCC->APB1RSTR &= ~RCC_APB1RSTR_USART2;
-	RCC->APB1ENR |= RCC_APB1ENR_USART2;
+	RCC->APB1ENR |= RCC_APB1ENR_USART2;// for part 1
+	//			U
 
 	/* Enable the USART peripheral */
 	USART2->CR1 |= USARTx_CR1_UE;  /* Enable */

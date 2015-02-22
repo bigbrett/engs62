@@ -11,6 +11,6 @@
 #include "stdint.h"
 #include "mutex.h"
 
-
-void WiFi_init
+/* Method to initialize WiFi module to communicate over USART 3 peripheral */
+void WiFi_init();
 
