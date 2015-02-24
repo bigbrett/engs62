@@ -50,6 +50,7 @@ void fsm_set_state(state_t new_state)
 			/* Initialize the LEDs */
 			LED_init();
 
+
 			/* Display usage information */
 			USART2_putstr("FSM Rest\r\n");
 			USART2_putstr("Press the space bar to turn on LEDs in a clockwise rotation\r\n");
@@ -60,25 +61,31 @@ void fsm_set_state(state_t new_state)
 			LED_update( LED_ORANGE_ON | LED_RED_ON | LED_BLUE_ON | LED_GREEN_ON );
 			break;
 
-		case STATE_1:
+		case STATE_BUTTON_PRESS:
 			/* Turn on the orange LED only */
 			LED_update( LED_ORANGE_ON | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_OFF );
 			break;
 
-		case STATE_2:
+		case STATE_DEBOUNCE:
 			/* Turn on the red LED only */
 			LED_update( LED_ORANGE_OFF | LED_RED_ON | LED_BLUE_OFF | LED_GREEN_OFF );
 			break;
 
-		case STATE_3:
+		case STATE_DEBOUNCE_WAIT:
 			/* Turn on the blue LED only */
 			LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_ON | LED_GREEN_OFF );
 			break;
 
-		case STATE_4:
+		case STATE_ECHO_BYTES:
 			/* Turn on the green LED only */
 			LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_ON );
 			break;
+
+		case STATE_PING:
+
+			break;
+
+
 		}
 	}
 }

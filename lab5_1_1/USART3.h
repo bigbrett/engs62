@@ -25,10 +25,6 @@ void USART3_putchar(uint8_t byte);
 /* Send a null-terminated string out USART2 */
 void USART3_putstr(uint8_t *buffer);
 
-/* Takes a 32-bit value and prints on console as hexadecimal number */
-void USART3_printHex(uint32_t val);
-
-
 
 
 

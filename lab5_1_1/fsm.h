@@ -2,10 +2,11 @@
 
 typedef enum {
 	STATE_RESET = 0,
-	STATE_1,
-	STATE_2,
-	STATE_3,
-	STATE_4
+	STATE_BUTTON_PRESS,
+	STATE_DEBOUNCE,
+	STATE_DEBOUNCE_WAIT,
+	STATE_ECHO_BYTES,
+	STATE_PING
 } state_t;
 
 /* Initialize the finite state machine */
