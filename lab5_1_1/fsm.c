@@ -1,9 +1,5 @@
 #include <fsm.h>
 
-#include <LED.h>
-#include <mutex.h>
-#include <USART2.h>
-
 static uint32_t fsm_mutex;
 
 static state_t state = STATE_RESET;
@@ -50,39 +46,31 @@ void fsm_set_state(state_t new_state)
 			/* Initialize the LEDs */
 			LED_init();
 
-
 			/* Display usage information */
-			USART2_putstr("FSM Rest\r\n");
-			USART2_putstr("Press the space bar to turn on LEDs in a clockwise rotation\r\n");
-			USART2_putstr("Press any other key to turn on LEDs in a counter-clockwise rotation\r\n");
-			USART2_putstr("Press the user button to reset the FSM\r\n\n");
+			USART2_putstr("Press the user button to toggle between CMD mode and PING mode\n\r");
 
-			/* Turn on all of the LEDs */
+			/* Turn off all of the LEDs */
 			LED_update( LED_ORANGE_ON | LED_RED_ON | LED_BLUE_ON | LED_GREEN_ON );
 			break;
 
 		case STATE_BUTTON_PRESS:
-			/* Turn on the orange LED only */
-			LED_update( LED_ORANGE_ON | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_OFF );
 			break;
 
 		case STATE_DEBOUNCE:
-			/* Turn on the red LED only */
-			LED_update( LED_ORANGE_OFF | LED_RED_ON | LED_BLUE_OFF | LED_GREEN_OFF );
 			break;
 
 		case STATE_DEBOUNCE_WAIT:
+			break;
+
+		case STATE_ECHO_BYTES:
+			USART3_putstr("$$$");
 			/* Turn on the blue LED only */
 			LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_ON | LED_GREEN_OFF );
 			break;
 
-		case STATE_ECHO_BYTES:
-			/* Turn on the green LED only */
-			LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_ON );
-			break;
-
 		case STATE_PING:
-
+			/* Turn on the orange LED only */
+			LED_update( LED_ORANGE_ON | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_OFF );
 			break;
 
 

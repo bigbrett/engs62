@@ -1,4 +1,7 @@
 #include <stdint.h>
+#include <LED.h>
+#include <mutex.h>
+#include <USART2.h>
 
 typedef enum {
 	STATE_RESET = 0,

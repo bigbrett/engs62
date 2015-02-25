@@ -6,11 +6,26 @@
  *      Author: Brett Nicholas
  */
 #pragma once
-#include "USART2.h"
-#include "USART3.h"
 #include "stdint.h"
-#include "mutex.h"
 
-/* Method to initialize WiFi module to communicate over USART 3 peripheral */
-void WiFi_init();
+#define PING 1
+#define MYID 20
+#define UPDATE 2
 
+typedef struct
+{
+	int type;
+	int id;
+} Ping_t;
+
+
+typedef struct
+{
+	int type;
+	int id;
+	int average;
+	int values[30];
+} Update_resp_t;
+
+void WIFI_send_ping();
+void WIFI_recv_ping(uint8_t byte);
