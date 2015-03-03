@@ -6,8 +6,8 @@
  *      Author: armdev
  */
 #include "WiFi.h"
-#define DEBUG 1
 
+/* holds server ping response received over USART3 */
 static Ping_t response;
 
 static int ctr = 0;
@@ -26,48 +26,52 @@ void WIFI_send_ping()
 	// pointer to a byte of the message (achieved by casting to uint8_t)
 	pbyte = (uint8_t *)pmsg;
 
-	USART2_putstr("Sending bytes...\n\r");
+	USART2_putstr("\n\n\n\rSending bytes...\n\r");
 	// loop through message and send it byte by byte
 	int i=0;
 	for (i=0; i<sizeof(Ping_t); i++) {
 		USART3_putchar(*pbyte);
-	//	printHex(*pbyte);
 		pbyte++;
 	}
-	USART2_putstr("Bytes sent\n\n\n\n\n\r");
+	USART2_putstr("Bytes sent\n\r");
 }
 
 
 /* Receives ping from USART3 */
 void WIFI_recv_ping(uint8_t byte)
 {
-	if (ctr == 0) {
-		response.type = 0;
-		response.id = 0;
+	// assign correct multiplier value depending on number of packets received
+	int multiplier = 0;
+	if (ctr % 4 == 3) { // 0th or 4th packet
+		multiplier = 16777216;
+	}
+	else if (ctr % 4 == 2) { // 1st or 5th packet
+		multiplier = 65536;
+	}
+	else if (ctr % 4 == 1) { // 2nd or 6th packet
+		multiplier = 256;
+	}
+	else if (ctr % 4 == 0) { // 3rd or 7th packet
+		multiplier = 1;
 	}
 
-	uint32_t *ptr;
-
-	if (ctr < 4)
-		ptr = &response.type;
-	else
-		ptr = &response.id;
-
-	*ptr = *ptr + ((uint32_t)byte << 7);
-
-	if (ctr >= 7) {
-		ctr = 0;
-		USART2_putstr("RECEIVED: \r\n");
-		printHex(response.type);
-		printHex(response.id);
+	// update either type or id field of response buffer
+	if (ctr < 4) {
+		response.type = response.type + (byte * multiplier);
 	}
-	ctr++;
+	else if (ctr < 8) {
+		response.id = response.id + (byte * multiplier);
+	}
+	ctr++; // increment packet count
 }
 
+
+/* Prints last received value from USART3 */
 void WIFI_recv_print()
 {
 	if (response.type == PING) {
-		USART2_putstr("RECEIVED\nType: Ping\nID: ");
+		USART2_putstr("RECEIVED\nType: Ping\n\r\tID: ");
+		printHex(response.id);
 	}
 }
 

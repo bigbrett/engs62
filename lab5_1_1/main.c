@@ -57,10 +57,10 @@ void main(void)
 	/* initialize the finite state machine */
 	fsm_init();
 
-	WIFI_send_ping();
 
 	/* Enable interrupts - do this after initializing the system */
 	__asm ("  cpsie i \n" );
+	WIFI_send_ping();
 
 	/* Wait here forever - everything is now interrupt driven */
 	while(1)

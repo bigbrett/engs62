@@ -1,7 +1,8 @@
-#include <stdint.h>
-#include <LED.h>
-#include <mutex.h>
-#include <USART2.h>
+#include "stdint.h"
+#include "LED.h"
+#include "mutex.h"
+#include "USART2.h"
+#include "WiFi.h"
 
 typedef enum {
 	STATE_RESET = 0,
@@ -10,7 +11,9 @@ typedef enum {
 	STATE_DEBOUNCE_WAIT,
 	STATE_ECHO_BYTES,
 	STATE_PING,
-	STATE_RECV
+	STATE_PING_RECV,
+	STATE_UPDATE,
+	STATE_UPDATE_RECV
 } state_t;
 
 /* Initialize the finite state machine */

@@ -1,9 +1,10 @@
 #include <fsm.h>
-#define DEBUG 0
+#define DEBUG 1
 
 static uint32_t fsm_mutex;
 
 static state_t state = STATE_RESET;
+static int last_state = 0;
 
 void fsm_init(void)
 {
@@ -65,7 +66,7 @@ void fsm_set_state(state_t new_state)
 			break;
 
 		case STATE_ECHO_BYTES:
-			TIM7_kill(); // TODO WHY IS THE TIMER NOT TRIPPING ANY INTERRUPTS?
+			TIM7_kill();
 
 			// Turn on the blue LED only
 			LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_ON | LED_GREEN_OFF );
@@ -82,16 +83,31 @@ void fsm_set_state(state_t new_state)
 			WIFI_send_ping();
 
 			// Set timer to generate a single interrupt in 1 second //
-			TIM7_1_sec(); // TODO WHY IS THE TIMER GOING SO FAST?
+			TIM7_1_sec();
 			break;
 
-		case STATE_RECV:
-			// print last value
-			WIFI_recv_print(); // TODO WHY IS THIS NOT TRIPPING?
+		case STATE_PING_RECV:
+			// print last value and remember last state
+			WIFI_recv_print();
 			fsm_set_state(STATE_PING);
-
 			break;
 
+		case STATE_UPDATE:
+			// Turn on the green LED
+			LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_ON);
+
+			// send potentiometer value over USART3
+			WIFI_send_update(ADC_getData());
+
+			// Set timer to generate a single interrupt in 1 second //
+			TIM7_1_sec();
+			break;
+
+		case STATE_UPDATE_RECV:
+			WIFI_recv_print();
+			fsm_set_state(STATE_UPDATE);
+
+			break;
 		}
 	}
 }

@@ -32,8 +32,10 @@ void USART3_callback_fn(uint8_t byte)
 		// if in CMD mode or reset, continue echoing over USART2
 		if (current_state == STATE_ECHO_BYTES || current_state == STATE_RESET)
 			USART2_putchar(byte); // echo to console
-		else // otherwise, time to receive a ping
+		else if (current_state == PING) // if in ping state, receive ping packets
 			WIFI_recv_ping(byte);
+		else if (current_state == UPDATE) // if in UPDATE state, receive update packets
+			WIFI_recv_update(byte);
 
 		fsm_unlock();
 	}
@@ -56,7 +58,9 @@ void userbutton_callback_fn(void)
 			USART3_putstr("exit\r");
 			fsm_set_state(STATE_PING);
 		}
-		else if (current_state == STATE_RECV || current_state == STATE_PING)
+		else if ( current_state == STATE_PING  || current_state == STATE_PING_RECV) // TODO what if we are in RECV
+			fsm_set_state(STATE_UPDATE); // fsm_set_state(STATE_ECHO_BYTES);
+		else if (current_state == STATE_UPDATE || current_state == STATE_UPDATE_RECV)
 			fsm_set_state(STATE_ECHO_BYTES);
 		else {
 			USART2_putstr("ERROR: BAD STATE IN USERBUTTON \n\r");
@@ -77,13 +81,13 @@ void TIM7_callback_fn(void)
 		// get current state
 		state_t current_state = fsm_get_state();
 
+		// if in ping or update states, time to receive
 		if (current_state == STATE_PING)
-			fsm_set_state(STATE_RECV);
-		else if (current_state == STATE_RECV)
-			fsm_set_state(STATE_PING);
-		else
+			fsm_set_state(STATE_PING_RECV);
+		else if (current_state == STATE_UPDATE)
+			fsm_set_state(STATE_UPDATE_RECV);
+		else // else error
 			USART2_putstr("ERROR: BAD STATE IN TIM7 CALLBACK \n\r");
-
 		fsm_unlock();
 	}
 }
@@ -91,21 +95,14 @@ void TIM7_callback_fn(void)
 
 void main(void)
 {
-	/* Set up the USART2 9600-8N1 and to call USART2_callback_fn when new data arrives */
+	/* Initialize modules */
 	USART2_init(USART2_callback_fn);
-	LED_init();
 	USART3_init(USART3_callback_fn);
-
-
-	/* Configure user pushbutton and call pushbutton_callback_fn when button press-released */
+	LED_init();
 	userbutton_init(userbutton_callback_fn);
-
-	/* initialize the finite state machine */
 	fsm_init();
-
-	/* Initialize basic timer */
 	TIM7_init(TIM7_callback_fn);
-//	TIM7_1_sec();
+	ADC_init();
 
 	/* Enable interrupts - do this after initializing the system */
 	__asm ("  cpsie i \n" );
