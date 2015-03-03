@@ -23,7 +23,7 @@ void WIFI_send_ping()
 	pmsg->type = PING;
 	pmsg->id = MYID;
 
-	// pointer to a byte of the message (achieved by casting to uint8_t)
+	// pointer to a byte of the m5essage (achieved by casting to uint8_t)
 	pbyte = (uint8_t *)pmsg;
 
 	USART2_putstr("\n\n\n\rSending bytes...\n\r");
@@ -34,8 +34,14 @@ void WIFI_send_ping()
 		pbyte++;
 	}
 	USART2_putstr("Bytes sent\n\r");
-}
 
+	// re-initialize response structures
+	//	response_update.type = 0;
+	//	response_update.id = 0;
+	//	response_ping.type = 0;
+	//	response_update.id = 0;
+	//  ctr = 0; // re-initialize counter}
+}
 
 /* Receives ping from USART3 */
 void WIFI_recv_ping(uint8_t byte)
@@ -55,6 +61,12 @@ void WIFI_recv_ping(uint8_t byte)
 		multiplier = 1;
 	}
 
+	if (ctr == 0) {
+		response_ping.type = 0;
+		response_ping.id = 0;
+	}
+
+
 	// update either type or id field of response buffer
 	if (ctr < 4) {
 		response_ping.type = response_ping.type + (byte * multiplier);
@@ -67,19 +79,20 @@ void WIFI_recv_ping(uint8_t byte)
 
 
 /* Prints last received value from USART3 */
-int WIFI_recv_print()
+void WIFI_recv_print()
 {
 	if (response_ping.type == PING) {
 		USART2_putstr("RECEIVED\nType: Ping\n\r\tID: ");
-		printHex(response_ping.id);
+		USART2_putstr(int2str(response_ping.id));
+		//printHex(response_ping.id);
 	}
 	else if (response_ping.type == UPDATE) {
 		USART2_putstr("RECEIVED\nType: UPDATE\n\r\tID: "); printHex(response_update.id);
-		USART2_putstr("\n\r\tAVERAGE: "); printHex(response_update.average);
-		USART2_putstr("\n\r\tVALUES: "); print_array(response_update.values);
+		USART2_putstr("\n\r\tAVERAGE: "); USART2_putstr(int2str(response_update.average));
+		USART2_putstr("\n\r\tVALUES: "); print_array(response_update.values, 30);
+	} else {
+		USART2_putstr(int2str(response_ping.type));
 	}
-
-	return response_ping.type; // for use in state logic
 }
 
 
@@ -98,14 +111,23 @@ void WIFI_send_update(uint32_t value)
 	// pointer to a byte of the message (achieved by casting to uint8_t)
 	pbyte = (uint8_t *)pmsg;
 
-	USART2_putstr("\n\n\n\rSending bytes...\n\r");
 	// loop through message and send it byte by byte
+	USART2_putstr("\n\n\n\rSending bytes...\n\r");
 	int i=0;
 	for (i=0; i<sizeof(Update_req_t); i++) {
 		USART3_putchar(*pbyte);
 		pbyte++;
 	}
 	USART2_putstr("Bytes sent\n\r");
+
+	// re-initialize response structures
+	response_update.type = 0;
+	response_update.id = 0;
+	response_update.average = 0;
+	response_ping.type = 0;
+	response_update.id = 0;
+	ctr = 0; // re-initialize counter
+
 }
 
 
@@ -128,19 +150,32 @@ void WIFI_recv_update(uint8_t byte)
 	}
 
 	// if first packet, set pointer to address of structure
-	if (ctr ==0)
+	if (ctr == 0) {
+		response_update.type = 0;
+		response_update.id = 0;
+		response_update.average = 0;
+		response_ping.type = 0;
+		response_update.id = 0;
 		pstruct = &response_update;
+	}
 
 	// update either type or id field of response buffer
-	if (ctr < 4)
-		response_update.type = response_ping.type + (byte * multiplier);
-	else if (ctr < 8)
-		response_update.id = response_ping.id + (byte * multiplier);
+	if (ctr < 4) {
+		response_ping.type = response_ping.type + (byte * multiplier);
+		response_update.type = response_update.type + (byte * multiplier);
+	}
+	else if (ctr < 8) {
+		response_update.id = response_update.id + (byte * multiplier);
+		response_ping.id = response_ping.id + (byte * multiplier);
+	}
 	else if (ctr < 12)
 		response_update.average = response_update.average + (byte * multiplier);
-	else if (ctr < 131) {
+	else if (ctr < 131)
 		*pstruct = byte; // byte gets inserted at current position in values[30]
-	}
+
+//	USART2_putstr("\n\r***TYPE: "); USART2_putstr(int2str(response_ping.type));
+//	USART2_putstr("\n\r***ID: "); USART2_putstr(int2str(response_ping.id));
+
 	ctr++; // increment packet count
 	pstruct++; // increment pointer
 }

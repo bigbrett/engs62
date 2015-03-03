@@ -48,7 +48,7 @@ typedef struct
 /* PING FUNCTIONS */
 void WIFI_send_ping(); /* sends ping over USART3 */
 void WIFI_recv_ping(uint8_t byte); /* receivs ping packets from USART3 */
-int WIFI_recv_print(); /* prints last received packet */
+void WIFI_recv_print(); /* prints last received packet */
 
 /* SERVO FUNCTIONS */
 void WIFI_send_update(uint32_t value);

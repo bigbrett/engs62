@@ -4,7 +4,6 @@
 static uint32_t fsm_mutex;
 
 static state_t state = STATE_RESET;
-static int last_state = 0;
 
 void fsm_init(void)
 {

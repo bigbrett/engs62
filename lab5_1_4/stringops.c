@@ -7,15 +7,16 @@
 #include "stringops.h"
 #define MAX 4294967294
 
-void print_array(uint32_t *arr)
+void print_array(uint32_t arr[], uint32_t size)
 {
 	uint8_t *str_ptr;
 	uint32_t val;
 
+	int foo = arrlen(arr);
 	int i = 0;
 	USART2_putstr("[");
-	for (i=0; i < arrlen(arr); i++) {
-		printHex(arr[i]);
+	for (i=0; i < size; i++) {
+		USART2_putstr(int2str(arr[i]));
 		USART2_putstr(" , ");
 	}
 	USART2_putstr("]\n\r");
@@ -45,6 +46,8 @@ int arrlen(uint32_t arr[])
 uint8_t* int2str(uint32_t num)
 {
 	uint8_t* ptr;
+	uint8_t foo;
+	ptr = &foo;
 
 	// deal with edge cases
 	if (num == 0) {
