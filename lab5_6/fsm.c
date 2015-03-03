@@ -58,13 +58,11 @@ void fsm_set_state(state_t new_state)
 
 			/* Turn off all of the LEDs */
 			LED_update( LED_ORANGE_ON | LED_RED_ON | LED_BLUE_ON | LED_GREEN_ON );
-			//TIM7_kill();
 			break;
 
 		case STATE_ECHO_BYTES:
 			TIM7_kill();
 
-			// Turn on the blue LED only
 			LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_ON | LED_GREEN_OFF );
 
 			// Enter CMD mode
@@ -72,7 +70,6 @@ void fsm_set_state(state_t new_state)
 			break;
 
 		case STATE_PING:
-			// Turn on the orange LED
 			LED_update( LED_ORANGE_ON | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_OFF );
 
 			// Send Ping
@@ -84,63 +81,49 @@ void fsm_set_state(state_t new_state)
 
 		case STATE_PING_RECV:
 			id = 20; // set to my id
-			// print last value and remember last state
-			WIFI_recv_print();
-			fsm_set_state(STATE_PING);
+			WIFI_recv_print(); // print last value
+			fsm_set_state(STATE_PING); // send again
 			break;
 
 		case STATE_UPDATE:
-			// Turn on the green LED
 			LED_update( LED_ORANGE_OFF | LED_RED_OFF | LED_BLUE_OFF | LED_GREEN_ON);
-
-			// set id to my id
-			id = 20;
-
-			// send potentiometer value over USART3
-			WIFI_send_update(ADC_getData());
-
-			// Set timer to generate a single interrupt in 1 second //
-			TIM7_1_sec();
+			id = 20; // set id to my id
+			WIFI_send_update(ADC_getData()); // send potentiometer value over USART3
+			TIM7_1_sec(); // Set timer to generate a single interrupt in 1 second //
 			break;
 
 		case STATE_UPDATE_RECV:
-			WIFI_recv_print();
+			WIFI_recv_print(); // print last value
 			WIFI_servoCtrl(id); // update servo motor position
-			fsm_set_state(STATE_UPDATE);
+			fsm_set_state(STATE_UPDATE); // receive next update
 			break;
 
 		case STATE_GET_ID:
-			TIM7_kill();
-			// Turn on the red LED
+			TIM7_kill(); // kill timer
 			LED_update( LED_ORANGE_OFF | LED_RED_ON | LED_BLUE_OFF | LED_GREEN_OFF);
-			USART2_buffer_clr();
-			USART2_putstr("ENTER ID NUMBER > ");
+			USART2_buffer_clr(); // clear buffer
+			USART2_putstr("ENTER ID NUMBER > "); // prompt user for USART2 inupt
 			break;
 
 		case STATE_GOT_ID:
-			// Turn on the red LED
 			LED_update( LED_ORANGE_OFF | LED_RED_ON | LED_BLUE_OFF | LED_GREEN_OFF);
-			id = USART2_buffer_getInt();
-			// send potentiometer value over USART3
-			//WIFI_send_update(ADC_getData());
-			TIM7_1_sec(); //fsm_set_state(STATE_ID_RECV); // TODO issues?
+			id = USART2_buffer_getInt(); // store input ID from buffer
+			WIFI_send_update(ADC_getData()); // send potentiometer value over USART3
+			TIM7_1_sec(); // set timer for 1 second
 			break;
 
 		case STATE_HAVE_ID:
-			// Turn on the red LED
 			LED_update( LED_ORANGE_OFF | LED_RED_ON | LED_BLUE_OFF | LED_GREEN_OFF);
+			WIFI_send_update(ADC_getData()); // send update (in order to get new data)
 			TIM7_1_sec(); //fsm_set_state(STATE_ID_RECV); // TODO issues?
 			break;
 
 		case STATE_ID_RECV:
-			//TIM7_kill();
-			// Turn on the red LED
 			LED_update( LED_ORANGE_OFF | LED_RED_ON | LED_BLUE_OFF | LED_GREEN_OFF);
-			WIFI_recv_print();
+			WIFI_recv_print(); // print received values
 			WIFI_servoCtrl(id); // update servo motor position
-			fsm_set_state(STATE_HAVE_ID);
+			fsm_set_state(STATE_HAVE_ID); // get ready to send/receive update again
 			break;
-
 		}
 	}
 }

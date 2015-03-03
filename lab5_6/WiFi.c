@@ -66,7 +66,6 @@ void WIFI_recv_ping(uint8_t byte)
 		response_ping.id = 0;
 	}
 
-
 	// update either type or id field of response buffer
 	if (ctr < 4) {
 		response_ping.type = response_ping.type + (byte * multiplier);
@@ -178,7 +177,7 @@ void WIFI_recv_update(uint8_t byte)
 	pstruct++; // increment pointer
 }
 
-
+/* updates servo motor based on passed ID */
 void WIFI_servoCtrl(uint32_t target_id)
 {
 	uint32_t idval = response_update.values[target_id];

@@ -28,6 +28,7 @@ void USART2_callback_fn(uint8_t byte)
 	}
 }
 
+
 void USART3_callback_fn(uint8_t byte)
 {
 	//USART2_putchar(byte);
@@ -39,16 +40,17 @@ void USART3_callback_fn(uint8_t byte)
 		// if in CMD mode or reset, continue echoing over USART2
 		if (current_state == STATE_ECHO_BYTES || current_state == STATE_RESET)
 			USART2_putchar(byte); // echo to console
-		else if (current_state == STATE_PING) // if in ping state, receive ping packets
+		// current packet ready to be buffered
+		else if (current_state == STATE_PING)
 			WIFI_recv_ping(byte);
+		// current packet ready to be buffered
 		else if (current_state == STATE_UPDATE || current_state == STATE_GOT_ID
-				|| current_state == STATE_HAVE_ID) // if in UPDATE state, receive update packets
+				|| current_state == STATE_HAVE_ID || current_state == STATE_ID_RECV) // if in UPDATE state, receive update packets
 			WIFI_recv_update(byte);
 
 		fsm_unlock();
 	}
 }
-
 
 
 void userbutton_callback_fn(void)
@@ -58,18 +60,22 @@ void userbutton_callback_fn(void)
 		// get current state
 		state_t current_state = fsm_get_state();
 
-		// toggle state between ping and echo bytes
+		// if in reset, go to PING
 		if (current_state == STATE_RESET) {
 			fsm_set_state(STATE_PING);
 		}
+		// if in CMD mode, go to ping
 		else if (current_state == STATE_ECHO_BYTES) {
 			USART3_putstr("exit\r");
 			fsm_set_state(STATE_PING);
 		}
+		// if pinging, go to update
 		else if ( current_state == STATE_PING  || current_state == STATE_PING_RECV)
 			fsm_set_state(STATE_UPDATE); // fsm_set_state(STATE_ECHO_BYTES);
+		// if updating, go to ID_update
 		else if (current_state == STATE_UPDATE || current_state == STATE_UPDATE_RECV)
 			fsm_set_state(STATE_GET_ID);
+		// if ID_updating go back to CMD mode
 		else if (current_state == STATE_GET_ID || current_state == STATE_GOT_ID
 				 || current_state == STATE_ID_RECV || current_state == STATE_HAVE_ID)
 			fsm_set_state(STATE_ECHO_BYTES);
@@ -92,7 +98,7 @@ void TIM7_callback_fn(void)
 		// get current state
 		state_t current_state = fsm_get_state();
 
-		// if in ping or update states, time to receive
+		// timer will always signify transition to respective mode's receive state
 		if (current_state == STATE_PING)
 			fsm_set_state(STATE_PING_RECV);
 		else if (current_state == STATE_UPDATE)
