@@ -25,14 +25,14 @@ static void(*rx_callback_fn)(uint8_t byte);
  * Interrupt handler for ADC: passes converted value to callback function
  */
 void __attribute__ ((interrupt)) ADC_handler(void)
-{
+		{
 	// get newly converted data
 	uint16_t adc_data = ADC->DR;
 
 	// pass converted data to callback function
 	if (rx_callback_fn)
 		rx_callback_fn(adc_data);
-}
+		}
 
 /*
  * Initializes ADC, but does NOT begin conversion
@@ -60,8 +60,14 @@ void ADC_init(void(*ADC_callback_fn)(uint16_t arg))
 	/* set sample time/ resolution for channel 1 */
 	ADC->SMPR2 |= ADC_SAMPLE_RATE; // 0x8
 
-	/* Turn on ADC1 by setting ADON (bit 0) to 1 in ADC_CR2 */
-	ADC->CR2 |= 0x1;
+	/* configure ADC to start conversions using TIM2_CH3 as an external trigger
+	 * 	1) enable external trigger for regular channels by setting EXTEN[29:28] to 01
+	 * 	2) select external event used to trigger start of regular group conversion by setting EXTSEL[27:25] to 0100 */
+	ADC->CR2 &= ~0xE0000000; // sets bits 29 and 28 to 01
+	ADC->CR2 &= ~0x0B000000; // sets bits 27:25 to 0100
+
+	/* initialize TIM2 coutner, which triggers ADC conversion */
+	tim2_init();
 
 	/* initialize history array */
 	int i;
@@ -89,17 +95,19 @@ uint32_t ADC_getData(void)
 	/* Begin conversion by setting SWSTRT (bit 30) to 1*/
 	ADC->CR2 |= 0x1; // Enable ADC
 	ADC->CR2 |= 0x40000000; // bit 30 <= 1
-	while (ADC->SR & 0x2 ==0); // busywait for EOC flag
+	while (ADC->SR & 0x2 == 0); // busywait for EOC flag
 	return ADC->DR; // return Data (implicit EOC flag reset)
 }
 
 /*
- * Enables ADC
+ * Enables TIM2 control of ADC
  */
 void ADC_start()
 {
+//	ADC->CR2 |= 0x1; // Enable ADC
+//	ADC->CR2 |= 0x40000000; // Start conversion
 	ADC->CR2 |= 0x1; // Enable ADC
-	ADC->CR2 |= 0x40000000; // bit 30 <= 1
+	tim2_start();
 }
 
 

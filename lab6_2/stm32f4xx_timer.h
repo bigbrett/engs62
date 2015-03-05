@@ -55,6 +55,7 @@ volatile typedef struct {
 #define TIM2_BASE				(0x40000000) // Base address of TIM3
 #define TIM2					((TIM2to5_TypeDef*)TIM2_BASE)
 #define TIM2_CR1_DISABLE 		(0xFFFFFFFc) //F F F F F F F F 1110
+#define TIMx_CCMR1_PWMMODE1EN	(0x00000060) // Bits 6:4 <= 0110
 
 
 #define TIMx_CCMR1_UPCOUNTEN_MASK (0xFFFFFF8F) // upcount enable mask

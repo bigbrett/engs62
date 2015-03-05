@@ -17,18 +17,13 @@
 ///* Updates TIM4 duty cycle to value passed as argument */
 //void tim4_updateDutyCycle(uint32_t newval);
 //
-///* Initialization steps for TIM2 timer peripheral */
-//void TIM2_init(void(*tim2_rx_callback)(void));
-//
-///* Interrupt handler for TIM2 */
-//void TIM2_handler(void);
-//
-///* Initializes basic timer 6 */
-//void TIM6_init(void(*tim6_rx_callback)(void));
-//void TIM6_1_sec();
+/* Initialization steps for TIM2 timer peripheral */
+void TIM2_init(void(*tim2_rx_callback)(void));
 
-/* Interrupt handler for TIM6 */
-//void TIM6_handler(void);
+/* Interrupt handler for TIM2 */
+void TIM2_handler(void);
+
+
 
 /* Initializes basic timer 6 */
 void TIM7_init(void(*tim6_rx_callback)(void));

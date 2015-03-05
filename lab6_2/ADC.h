@@ -11,6 +11,7 @@
 #include "stm32f4xx_adc.h"
 #include "cortexm4_nvic-template.h"
 #include "USART2.h"
+#include "timer.h"
 
 /* Initializes ADC */
 void ADC_init(void(*rx_callback_fn)(uint16_t arg));

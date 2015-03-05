@@ -4,7 +4,8 @@
 #include "userbutton.h"
 #include "WiFi.h"
 #include "timer.h"
-
+#include "ADC.h"
+int i =0;
 /* Callback function for USART2 interrupts */
 void USART2_callback_fn(uint8_t byte)
 {
@@ -92,7 +93,15 @@ void ADC_callback_fn(uint16_t adc_data)
 {
 //	if( fsm_lock() == FSM_LOCK_ACQUIRED )
 //	{
+		USART2_putstr(int2str(i));
+		USART2_putstr(" : ");
 		USART2_putstr(int2str(adc_data)); // print ADC data to console
+		USART2_putstr("\n\r");
+
+		if (i >= 10)
+			i=0;
+		else
+			i++;
 //	}
 }
 
@@ -140,6 +149,13 @@ void main(void)
 	/* Wait here forever - everything is now interrupt driven */
 	while(1)
 	{
-		;;;
+		if (ADC->SR & 0x2 != 0) {
+			USART2_putstr("FOO");
+			if (i >= 10)
+				i=0;
+			else
+				i++;
+		}
+//		;;;
 	}
 }
