@@ -67,8 +67,8 @@ void ADC_init(void(*ADC_callback_fn)(uint16_t arg))
 	/* initialize TIM2 coutner, which triggers ADC conversion */
 	tim2_init();
 
-//	/* configure ADC to use DMA for conversion event (set bit 8) */
-//	ADC->CR2 |= 0x00000100;
+	/* configure ADC to use DMA for conversion event (set bit 8) */
+	ADC->CR2 |= 0x00000100;
 
 	/* initialize history array */
 	int i;
@@ -76,13 +76,16 @@ void ADC_init(void(*ADC_callback_fn)(uint16_t arg))
 		history[i] = 0;
 	}
 
+
+
+
 	/*
 	 *  If a callback function was registered, enable interrupt on ADC conversion
 	 */
-	if( ADC_callback_fn ) {
-		NVIC_INTERRUPT_ADC_ENABLE();
-		ADC->CR1 |= ADCx_CR1_EOCIE; // set bit 5 to 1
-	}
+//	if( ADC_callback_fn ) {
+//		NVIC_INTERRUPT_ADC_ENABLE();
+//		ADC->CR1 |= ADCx_CR1_EOCIE; // set bit 5 to 1
+//	}
 	ADC->CR2 |= 0x1; // Enable ADC
 
 	initialized = 1;
