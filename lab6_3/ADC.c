@@ -13,7 +13,7 @@
 static int history[4];
 static int initialized = 0;
 
-static uint16_t *buffer;
+static volatile uint16_t buffer[10];
 
 /* module-global pointer to the callback function for rx'd bytes populated in init function. */
 static void(*rx_callback_fn)(uint8_t byte);
@@ -34,7 +34,7 @@ void __attribute__ ((interrupt)) ADC_handler(void)
 /*
  * Initializes ADC, but does NOT begin conversion
  */
-void ADC_init(void(*ADC_callback_fn)(uint16_t* buffer, uint32_t buffer_size))
+void ADC_init(void(*ADC_callback_fn)(volatile uint16_t* buffer, uint32_t buffer_size))
 {
 	// declare callback function
 	rx_callback_fn = ADC_callback_fn;

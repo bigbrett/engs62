@@ -17,7 +17,7 @@ void(*ADC_callback_fn)(uint16_t* buffer, uint32_t buffer_size);
 
 void __attribute__ ((interrupt)) DMA_handler(void) {
 
-	if (ADC_callback_fn);
+//	if (ADC_callback_fn);
 //		ADC_callback_fn(uffer, size);
 }
 
@@ -27,7 +27,7 @@ void __attribute__ ((interrupt)) DMA_handler(void) {
 /*
  * Configures DMA stream 0 for ADC data, and enables interrupts. See pg 231 of reference manual
  */
-void DMA2_S0_init(uint16_t* p_buffer)
+void DMA2_S0_init(volatile uint16_t* buffer)
 {
 	// disable stream by clearing EN bit, then wait for it to be read as 0 confirming no ongoing stream operation
 	DMA->S0CR &= ~0x00000001;
@@ -38,7 +38,7 @@ void DMA2_S0_init(uint16_t* p_buffer)
 
 	/* Set memory address
 	 * Data will be written to this space after the peripheral event */
-	DMA->S0M0AR = p_buffer;// address of memory space
+	DMA->S0M0AR = buffer;// address of memory space
 
 	/* Set memory increment value to size of word */
 	DMA->S0CR = 0x400;

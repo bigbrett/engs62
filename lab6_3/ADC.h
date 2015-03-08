@@ -16,7 +16,7 @@
 
 /* Initializes ADC */
 //void ADC_init(void(*rx_callback_fn)(uint16_t arg));
-void ADC_init(void(*ADC_callback_fn)(uint16_t* buffer, uint32_t buffer_size));
+void ADC_init(void(*ADC_callback_fn)(volatile uint16_t* buffer, uint32_t buffer_size));
 
 /* echo ADC value to screen */
 void ADC_buttonScan(void);
