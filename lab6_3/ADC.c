@@ -16,7 +16,11 @@ static int initialized = 0;
 static volatile uint16_t buffer[10];
 
 /* module-global pointer to the callback function for rx'd bytes populated in init function. */
-static void(*rx_callback_fn)(uint8_t byte);
+static void(*rx_callback_fn)(volatile uint16_t* buffer, uint32_t buffer_size);
+
+/* module-global pointer to the callback function for DMA TCIE signals */
+//void(*ADC_callback_fn)(uint16_t* buffer, uint32_t buffer_size);
+
 
 /*
  * Interrupt handler for ADC: passes converted value to callback function
@@ -27,9 +31,27 @@ void __attribute__ ((interrupt)) ADC_handler(void)
 	uint16_t adc_data = ADC->DR;
 
 	// pass converted data to callback function
-	if (rx_callback_fn)
-		rx_callback_fn(adc_data);
+//	if (rx_callback_fn)
+//		rx_callback_fn(adc_data);
 }
+
+/*
+ * Interrupt handler for ADC DMA configuration
+ */
+void __attribute__ ((interrupt)) DMA2_stream0_handler(void)
+{
+	// Clear TCIF by setting CTCIF0 bit
+	DMA->LISR |= 0x20;
+
+	// Disable TIM2
+	tim2_kill();
+
+	// Call ADC callback function
+	if (rx_callback_fn)
+		rx_callback_fn(buffer, 10);
+	tim2_start();
+}
+
 
 /*
  * Initializes ADC, but does NOT begin conversion
@@ -61,14 +83,21 @@ void ADC_init(void(*ADC_callback_fn)(volatile uint16_t* buffer, uint32_t buffer_
 	ADC->CR2 |= 0x1;// chose ADC 1
 	ADC->CR2 |= 0x14000000; // enable TIM2 to trigger
 
-	/* configure ADC to use DMA for conversion event (set bit 8) */
-	ADC->CR2 |= 0x00000100;
+	/* clear DMA flag before DMA_init */
+	ADC->CR2 &= ~0x00000100;
 
-	// TODO: Set DDS (bit 9) to 1 (DMA requests are issued as long as data are converted and DMA=1)
-	//ADC->CR2 |= 0x200;
+	/* disable TIM2 before DMA_init */
+	tim2_kill();
 
-	/* Initialize DMA control of ADC data */
+	 //TODO: Set DDS (bit 9) to 1 (DMA requests are issued as long as data are converted and DMA=1)
+	ADC->CR2 |= 0x200;
+
+	/* Configure DMA to control ADC data */
 	DMA2_S0_init(buffer);
+	NVIC_INTERRUPT_DMA2_ENABLE();
+
+	/* Set DMA flag to enable ADC DMA control */
+	ADC->CR2 |= 0x00000100;
 
 	/* configure TIM2 counter to trigger ADC conversion */
 	tim2_init();

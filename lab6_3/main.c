@@ -100,17 +100,9 @@ void ADC_callback_fn(uint16_t* buffer, uint32_t buffer_size)
 	for (i=0; i<buffer_size; i++)
 		USART2_putstr(int2str(buffer[i]));
 
+	//tim2_start();
 	//	}
 }
-
-/* Callback function for DMA interrupts */
-void DMA_callback_fn()
-{
-
-}
-
-
-
 
 
 /* Callback function for TIM2 interrupts */

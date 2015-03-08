@@ -86,3 +86,8 @@ void tim2_start()
 	TIM2->TIMx_CR1 |= 0x1;
 }
 
+/* Kill timer 2*/
+void tim2_kill()
+{
+	TIM2->TIMx_CR1 &= ~0x1;
+}

@@ -7,6 +7,7 @@
 #pragma once
 #include "stm32f4xx_dma.h"
 #include "stm32f4xx_adc.h"
+#include "stm32f4xx_rcc.h"
 
 /* Enables DMA2 S0 to interface with ADC1 */
 void DMA2_S0_init(volatile uint16_t* buffer);
