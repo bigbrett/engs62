@@ -5,7 +5,8 @@
  */
 #pragma once
 #include "stdint.h"
-typedef unsigned int   uint32_t;
+typedef unsigned int uint32_t;
+
 
 /* DMA registers */
 volatile typedef struct

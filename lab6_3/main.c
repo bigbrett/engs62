@@ -5,7 +5,10 @@
 #include "WiFi.h"
 #include "timer.h"
 #include "ADC.h"
+#include "DMA.h"
+
 int i =0;
+
 /* Callback function for USART2 interrupts */
 void USART2_callback_fn(uint8_t byte)
 {
@@ -78,7 +81,7 @@ void userbutton_callback_fn(void)
 			fsm_set_state(STATE_GET_ID);
 		// if ID_updating go back to CMD mode
 		else if (current_state == STATE_GET_ID || current_state == STATE_GOT_ID
-				 || current_state == STATE_ID_RECV || current_state == STATE_HAVE_ID)
+				|| current_state == STATE_ID_RECV || current_state == STATE_HAVE_ID)
 			fsm_set_state(STATE_ECHO_BYTES);
 		else {
 			USART2_putstr("ERROR: BAD STATE IN USERBUTTON \n\r");
@@ -89,21 +92,25 @@ void userbutton_callback_fn(void)
 }
 
 /* Callback function for ADC interrupts */
-void ADC_callback_fn(uint16_t adc_data)
+void ADC_callback_fn(uint16_t* buffer, uint32_t buffer_size)
 {
-//	if( fsm_lock() == FSM_LOCK_ACQUIRED )
-//	{
-		USART2_putstr(int2str(i));
-		USART2_putstr(" : ");
-		USART2_putstr(int2str(adc_data)); // print ADC data to console
-		USART2_putstr("\n\r");
+	//	if( fsm_lock() == FSM_LOCK_ACQUIRED )
+	//	{
+	int i=0;
+	for (i=0; i<buffer_size; i++)
+		USART2_putstr(int2str(buffer[i]));
 
-		if (i >= 10)
-			i=0;
-		else
-			i++;
-//	}
+	//	}
 }
+
+/* Callback function for DMA interrupts */
+void DMA_callback_fn()
+{
+
+}
+
+
+
 
 
 /* Callback function for TIM2 interrupts */
@@ -134,14 +141,14 @@ void main(void)
 {
 	/* Initialize modules */
 	USART2_init(USART2_callback_fn);
-//	USART3_init(USART3_callback_fn);
-//	LED_init();
-//	userbutton_init(userbutton_callback_fn);
-//	fsm_init();
-//	TIM7_init(TIM7_callback_fn);
+	//	USART3_init(USART3_callback_fn);
+	//	LED_init();
+	//	userbutton_init(userbutton_callback_fn);
+	//	fsm_init();
+	//	TIM7_init(TIM7_callback_fn);
 	ADC_init(ADC_callback_fn);
 	ADC_start();
-//	tim4_init();
+	//	tim4_init();
 
 	/* Enable interrupts - do this after initializing the system */
 	__asm ("  cpsie i \n" );
@@ -149,13 +156,6 @@ void main(void)
 	/* Wait here forever - everything is now interrupt driven */
 	while(1)
 	{
-		if (ADC->SR & 0x2 != 0) {
-			USART2_putstr("FOO");
-			if (i >= 10)
-				i=0;
-			else
-				i++;
-		}
-//		;;;
+		;;;
 	}
 }

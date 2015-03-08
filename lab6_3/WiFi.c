@@ -23,7 +23,7 @@ void WIFI_send_ping()
 	pmsg->type = PING;
 	pmsg->id = MYID;
 
-	// pointer to a byte of the m5essage (achieved by casting to uint8_t)
+	// pointer to a byte of the message (achieved by casting to uint8_t)
 	pbyte = (uint8_t *)pmsg;
 
 	USART2_putstr("\n\n\n\rSending bytes...\n\r");
