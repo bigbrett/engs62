@@ -90,7 +90,7 @@ void ADC_init(void(*ADC_callback_fn)(volatile uint16_t* buffer, uint32_t buffer_
 	/* disable TIM2 before DMA_init */
 	tim2_kill();
 
-	 //TODO: Set DDS (bit 9) to 1 (DMA requests are issued as long as data are converted and DMA=1)
+	 //Set DDS (bit 9) to 1 (DMA requests are issued as long as data are converted and DMA=1)
 	ADC->CR2 |= 0x200;
 
 	/* Configure DMA to control ADC data */
