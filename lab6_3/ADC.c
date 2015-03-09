@@ -41,7 +41,7 @@ void __attribute__ ((interrupt)) ADC_handler(void)
 void __attribute__ ((interrupt)) DMA2_stream0_handler(void)
 {
 	// Clear TCIF by setting CTCIF0 bit
-	DMA->LISR |= 0x20;
+	DMA->LIFCR |= 0x20;
 
 	// Disable TIM2
 	tim2_kill();
@@ -49,7 +49,8 @@ void __attribute__ ((interrupt)) DMA2_stream0_handler(void)
 	// Call ADC callback function
 	if (rx_callback_fn)
 		rx_callback_fn(buffer, 10);
-	tim2_start();
+
+	//tim2_init(); tim2_start();
 }
 
 

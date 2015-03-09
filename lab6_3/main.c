@@ -97,8 +97,12 @@ void ADC_callback_fn(uint16_t* buffer, uint32_t buffer_size)
 	//	if( fsm_lock() == FSM_LOCK_ACQUIRED )
 	//	{
 	int i=0;
-	for (i=0; i<buffer_size; i++)
+	for (i=0; i<buffer_size; i++) {
+		USART2_putstr(int2str(i));
+		USART2_putstr(": ");
 		USART2_putstr(int2str(buffer[i]));
+		USART2_putstr("\n\r");
+	}
 
 	//tim2_start();
 	//	}
