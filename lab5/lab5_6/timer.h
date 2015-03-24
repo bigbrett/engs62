@@ -34,6 +34,7 @@
 void TIM7_init(void(*tim6_rx_callback)(void));
 void TIM7_1_sec();
 void TIM7_kill(void);
+void TIM7_2_sec(void);
 
 /* Interrupt handler for TIM6 */
 void TIM7_handler(void);

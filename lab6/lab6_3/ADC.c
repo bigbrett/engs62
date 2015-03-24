@@ -13,31 +13,51 @@
 static int history[4];
 static int initialized = 0;
 
+static volatile uint16_t buffer[10];
 
-/*
- * module-global pointer to the callback function for
- * rx'd bytes populated in init function.
- * */
-static void(*rx_callback_fn)(uint8_t byte);
+/* module-global pointer to the callback function for rx'd bytes populated in init function. */
+static void(*rx_callback_fn)(volatile uint16_t* buffer, uint32_t buffer_size);
+
+/* module-global pointer to the callback function for DMA TCIE signals */
+//void(*ADC_callback_fn)(uint16_t* buffer, uint32_t buffer_size);
 
 
 /*
  * Interrupt handler for ADC: passes converted value to callback function
  */
 void __attribute__ ((interrupt)) ADC_handler(void)
-		{
+{
 	// get newly converted data
 	uint16_t adc_data = ADC->DR;
 
 	// pass converted data to callback function
+//	if (rx_callback_fn)
+//		rx_callback_fn(adc_data);
+}
+
+/*
+ * Interrupt handler for ADC DMA configuration
+ */
+void __attribute__ ((interrupt)) DMA2_stream0_handler(void)
+{
+	// Clear TCIF by setting CTCIF0 bit
+	DMA->LIFCR |= 0x20;
+
+	// Disable TIM2
+	tim2_kill();
+
+	// Call ADC callback function
 	if (rx_callback_fn)
-		rx_callback_fn(adc_data);
-		}
+		rx_callback_fn(buffer, 10);
+
+	//tim2_init(); tim2_start();
+}
+
 
 /*
  * Initializes ADC, but does NOT begin conversion
  */
-void ADC_init(void(*ADC_callback_fn)(uint16_t arg))
+void ADC_init(void(*ADC_callback_fn)(volatile uint16_t* buffer, uint32_t buffer_size))
 {
 	// declare callback function
 	rx_callback_fn = ADC_callback_fn;
@@ -64,11 +84,24 @@ void ADC_init(void(*ADC_callback_fn)(uint16_t arg))
 	ADC->CR2 |= 0x1;// chose ADC 1
 	ADC->CR2 |= 0x14000000; // enable TIM2 to trigger
 
-	/* initialize TIM2 coutner, which triggers ADC conversion */
-	tim2_init();
+	/* clear DMA flag before DMA_init */
+	ADC->CR2 &= ~0x00000100;
 
-	/* configure ADC to use DMA for conversion event (set bit 8) */
+	/* disable TIM2 before DMA_init */
+	tim2_kill();
+
+	 //Set DDS (bit 9) to 1 (DMA requests are issued as long as data are converted and DMA=1)
+	ADC->CR2 |= 0x200;
+
+	/* Configure DMA to control ADC data */
+	DMA2_S0_init(buffer);
+	NVIC_INTERRUPT_DMA2_ENABLE();
+
+	/* Set DMA flag to enable ADC DMA control */
 	ADC->CR2 |= 0x00000100;
+
+	/* configure TIM2 counter to trigger ADC conversion */
+	tim2_init();
 
 	/* initialize history array */
 	int i;
@@ -77,18 +110,18 @@ void ADC_init(void(*ADC_callback_fn)(uint16_t arg))
 	}
 
 
-
-
-	/*
-	 *  If a callback function was registered, enable interrupt on ADC conversion
-	 */
-//	if( ADC_callback_fn ) {
-//		NVIC_INTERRUPT_ADC_ENABLE();
-//		ADC->CR1 |= ADCx_CR1_EOCIE; // set bit 5 to 1
-//	}
-	ADC->CR2 |= 0x1; // Enable ADC
-
 	initialized = 1;
+}
+
+
+/*
+ * Enables ADC interrupts
+ */
+void ADC_IE(void)
+{
+	NVIC_INTERRUPT_ADC_ENABLE();
+	ADC->CR1 |= ADCx_CR1_EOCIE; // set bit 5 to 1
+	ADC->CR2 |= 0x1; // Enable ADC
 }
 
 
@@ -104,13 +137,14 @@ uint32_t ADC_getData(void)
 	return ADC->DR; // return Data (implicit EOC flag reset)
 }
 
+
 /*
  * Enables TIM2 control of ADC
  */
 void ADC_start()
 {
-//	ADC->CR2 |= 0x1; // Enable ADC
-//	ADC->CR2 |= 0x40000000; // Start conversion
+	//	ADC->CR2 |= 0x1; // Enable ADC
+	//	ADC->CR2 |= 0x40000000; // Start conversion
 	ADC->CR2 |= 0x1; // Enable ADC
 	tim2_start();
 }
@@ -206,8 +240,4 @@ uint32_t ADC_scanEcho(void)
 	printHex(data);
 	return data;
 }
-
-
-
-
 

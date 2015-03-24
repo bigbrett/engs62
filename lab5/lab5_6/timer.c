@@ -32,6 +32,13 @@ void TIM7_1_sec(void)
 	TIM7->TIMx_CR1 |= 0x1;
 }
 
+void TIM7_2_sec(void)
+{
+	TIM7->TIMx_PSC = 1600; // set prescaler (old = 65536)
+	TIM7->TIMx_EGR |= 0x1;
+	TIM7->TIMx_CR1 |= 0x1;
+}
+
 void TIM7_kill(void)
 {
 	TIM7->TIMx_CR1 &= ~0x1;

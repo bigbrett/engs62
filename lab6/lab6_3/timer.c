@@ -66,10 +66,10 @@ void tim2_init()
 	// configure CCMR2 OC3M field as "PWM mode 1" (bits 6:4 <= 110)
 	TIM2->TIMx_CCMR2 |= 0x60;
 
-//	// TODO set TIMx->DIER CC3DE (capture/compare DMA reaquest enable: bit 11)
+//	// set TIMx->DIER CC3DE (capture/compare DMA reaquest enable: bit 11)
 //	TIM2->TIMx_DIER |= 0x800; // 0000 0000 0000
 //
-//	// TODO set TIMx->EGR TF (trigger generation: bit 6) and CC3G (capture/compare 3 generation: bit 3)
+//	// set TIMx->EGR TF (trigger generation: bit 6) and CC3G (capture/compare 3 generation: bit 3)
 //	TIM2->TIMx_EGR |= 0x48;
 
 	// Set PSC and ARR to achieve the desired fundemental frequency of 1kHz
@@ -86,3 +86,8 @@ void tim2_start()
 	TIM2->TIMx_CR1 |= 0x1;
 }
 
+/* Kill timer 2*/
+void tim2_kill()
+{
+	TIM2->TIMx_CR1 &= ~0x1;
+}

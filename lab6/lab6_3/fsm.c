@@ -115,7 +115,7 @@ void fsm_set_state(state_t new_state)
 		case STATE_HAVE_ID:
 			LED_update( LED_ORANGE_OFF | LED_RED_ON | LED_BLUE_OFF | LED_GREEN_OFF);
 			WIFI_send_update(ADC_getData()); // send update (in order to get new data)
-			TIM7_1_sec(); //fsm_set_state(STATE_ID_RECV); // TODO issues?
+			TIM7_1_sec(); //fsm_set_state(STATE_ID_RECV);
 			break;
 
 		case STATE_ID_RECV:
